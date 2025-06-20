@@ -14,5 +14,5 @@ def trigger_discovery():
     return discovery_service.trigger_discovery()
 
 @router.get("/read")
-def read_all_device_configs():
+def read_all_devices():
     return discovery_service.read_all_devices()
