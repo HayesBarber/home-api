@@ -1,6 +1,6 @@
-from enum import Enum
 import os
 import redis
+from enum import Enum
 from typing import Optional, Any, Type, TypeVar, Dict, Tuple, Iterator, List
 from pydantic import BaseModel, ValidationError
 
@@ -18,34 +18,27 @@ class TTL(int, Enum):
     DEVICE_CONFIG = 15 * 60
     API_KEYS = 5 * 60
 
+def _make_key(namespace: Namespace, key: str) -> str:
+    return f"{namespace.value}:{key}"
+
+def _get_ttl(ns: Namespace) -> Optional[int]:
+    return TTL[ns.name].value if ns.name in TTL.__members__ else None
+
 class RedisClient:
     def __init__(self, redis_url: Optional[str] = None):
-        if redis_url is None:
-            redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
+        redis_url = redis_url or os.getenv("REDIS_URL", "redis://localhost:6379")
         self._redis = redis.from_url(redis_url)
 
-    def _make_key(self, namespace: Namespace, key: str) -> str:
-        return f"{namespace.value}:{key}"
-    
-    def get_ttl_for_namespace(self, ns: Namespace) -> Optional[int]:
-        try:
-            return TTL[ns.name].value
-        except KeyError:
-            return None
-
     def get(self, namespace: Namespace, key: str) -> Optional[str]:
-        full_key = self._make_key(namespace, key)
-        value = self._redis.get(full_key)
-        return value.decode() if value else None
+        value = self._redis.get(_make_key(namespace, key))
+        return value.decode("utf-8") if value else None
 
     def set(self, namespace: Namespace, key: str, value: Any):
-        full_key = self._make_key(namespace, key)
         val = value if isinstance(value, (str, bytes)) else str(value)
-        self._redis.set(full_key, val, ex=self.get_ttl_for_namespace(namespace))
+        self._redis.set(_make_key(namespace, key), val, ex=_get_ttl(namespace))
 
     def delete(self, namespace: Namespace, key: str):
-        full_key = self._make_key(namespace, key)
-        self._redis.delete(full_key)
+        self._redis.delete(_make_key(namespace, key))
 
     def get_model(self, namespace: Namespace, key: str, model: Type[T]) -> Optional[T]:
         raw = self.get(namespace, key)
@@ -54,7 +47,7 @@ class RedisClient:
         try:
             return model.model_validate_json(raw)
         except ValidationError:
-            print(f"Error parsing model json for key {self._make_key(namespace, key)}")
+            print(f"[Redis] Invalid model JSON for key: {_make_key(namespace, key)}")
             return None
 
     def set_model(self, namespace: Namespace, key: str, model_instance: BaseModel):
@@ -62,63 +55,52 @@ class RedisClient:
 
     def _get_all_raw(self, namespace: Namespace) -> Iterator[Tuple[str, bytes]]:
         pattern = f"{namespace.value}:*"
-        full_keys_bytes = self._redis.keys(pattern)
-
-        if not full_keys_bytes:
+        keys = self._redis.keys(pattern)
+        if not keys:
             return
-
-        full_keys = [k.decode() for k in full_keys_bytes]
-        values_bytes = self._redis.mget(full_keys)
-
-        for full_key, value_bytes in zip(full_keys, values_bytes):
-            if value_bytes is not None:
-                # The '1' in split ensures we only split on the first colon
-                original_key = full_key.split(':', 1)[1]
-                yield original_key, value_bytes
+        values = self._redis.mget(keys)
+        for full_key, value in zip(keys, values):
+            if value is not None:
+                orig_key = full_key.decode().split(":", 1)[1]
+                yield orig_key, value
 
     def get_all(self, namespace: Namespace) -> Dict[str, str]:
         return {
-            key: value.decode()
-            for key, value in self._get_all_raw(namespace)
+            key: val.decode("utf-8")
+            for key, val in self._get_all_raw(namespace)
         }
 
     def get_all_models(self, namespace: Namespace, model: Type[T]) -> Dict[str, T]:
-        all_models = {}
-        for original_key, value_bytes in self._get_all_raw(namespace):
+        models = {}
+        for key, val in self._get_all_raw(namespace):
             try:
-                all_models[original_key] = model.model_validate_json(value_bytes)
+                models[key] = model.model_validate_json(val)
             except ValidationError:
-                full_key_for_error = f"{namespace.value}:{original_key}"
-                print(f"Error parsing model json for key {full_key_for_error}. Skipping this entry.")
+                print(f"[Redis] Skipping invalid model for key: {_make_key(namespace, key)}")
             except Exception as e:
-                full_key_for_error = f"{namespace.value}:{original_key}"
-                print(f"An unexpected error occurred for key {full_key_for_error}: {e}")
-        return all_models
-    
-    def set_all_models(self, namespace: Namespace, models: List[T], key_field: str) -> int:
-        if not models:
+                print(f"[Redis] Unexpected error on key {_make_key(namespace, key)}: {e}")
+        return models
+
+    def set_all_models(self, namespace: Namespace, model_list: List[T], key_field: str) -> int:
+        if not model_list:
             return 0
 
         try:
-            pipeline_data = {
-                f"{namespace.value}:{str(getattr(model, key_field))}": model.model_dump_json()
-                for model in models
+            data = {
+                _make_key(namespace, str(getattr(model, key_field))): model.model_dump_json()
+                for model in model_list
             }
         except AttributeError as e:
-            raise AttributeError(f"The key_field '{key_field}' does not exist on a provided model.") from e
-
-        if not pipeline_data:
-            return 0
-
-        ttl = self.get_ttl_for_namespace(namespace)
+            raise AttributeError(f"[Redis] key_field '{key_field}' not found on model.") from e
 
         pipe = self._redis.pipeline()
-        for key, value in pipeline_data.items():
-            pipe.set(key, value)
-            if ttl is not None:
+        ttl = _get_ttl(namespace)
+        for key, val in data.items():
+            pipe.set(key, val)
+            if ttl:
                 pipe.expire(key, ttl)
         pipe.execute()
 
-        return len(pipeline_data)
+        return len(data)
 
 redis_client = RedisClient()
