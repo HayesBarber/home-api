@@ -1,0 +1,30 @@
+from enum import Enum
+from pydantic import BaseModel, field_validator
+from ipaddress import IPv4Address
+from typing import Optional
+from datetime import datetime
+
+class DeviceType(str, Enum):
+    KASA = "kasa"
+    LIFX = "lifx"
+    LED_STRIP = "led_strip"
+
+class PowerState(str, Enum):
+    ON = "on"
+    OFF = "off"
+
+class DeviceConfig(BaseModel):
+    name: str
+    ip: IPv4Address
+    type: DeviceType
+    power_state: PowerState
+    last_updated: Optional[str] = None
+
+    @field_validator("last_updated", mode="before")
+    @classmethod
+    def set_last_updated(cls, v):
+        if v is None:
+            return datetime.now().isoformat()
+        if isinstance(v, datetime):
+            return v.isoformat()
+        return v
