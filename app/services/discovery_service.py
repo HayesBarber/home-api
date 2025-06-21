@@ -20,3 +20,6 @@ def trigger_discovery():
 def read_all_devices():
     all_configs_dict = redis_client.get_all_models(Namespace.DEVICE_CONFIG, DeviceConfig)
     return list(all_configs_dict.values())
+
+def delete_devcie(name: str):
+    redis_client.delete(Namespace.DEVICE_CONFIG, name)
