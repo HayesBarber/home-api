@@ -23,3 +23,6 @@ def read_all_devices():
 
 def delete_devcie(name: str):
     redis_client.delete(Namespace.DEVICE_CONFIG, name)
+
+def check_for_offline_devices():
+    pass

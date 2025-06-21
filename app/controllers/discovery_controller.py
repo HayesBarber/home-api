@@ -21,3 +21,8 @@ def read_all_devices():
 def delete_device(device_name: str):
     discovery_service.delete_devcie(device_name)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+@router.post("/check-offline", status_code=status.HTTP_204_NO_CONTENT)
+def check_for_offline_devices():
+    discovery_service.check_for_offline_devices()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
