@@ -28,12 +28,14 @@ def delete_devcie(name: str):
 
 def check_for_offline_devices():
     devices = read_all_devices()
-    offline_count = 0
+    stale = get_stale_devices(devices)
 
-    for device in devices:
-        pass
+    for device in stale:
+        device.is_offline = True
+    
+    redis_client.set_all_models(DeviceConfig, stale, "name")
      
-    return offline_count
+    return len(stale)
 
 def get_stale_devices(devices: List[DeviceConfig]) -> List[DeviceConfig]:
     now = datetime.now()
