@@ -25,4 +25,10 @@ def delete_devcie(name: str):
     redis_client.delete(Namespace.DEVICE_CONFIG, name)
 
 def check_for_offline_devices():
-    pass
+    devices = read_all_devices()
+    offline_count = 0
+
+    for device in devices:
+        pass
+     
+    return offline_count
