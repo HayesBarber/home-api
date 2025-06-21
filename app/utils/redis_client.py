@@ -15,7 +15,6 @@ class Namespace(str, Enum):
     THEMES = "themes"
 
 class TTL(int, Enum):
-    DEVICE_CONFIG = 15 * 60
     API_KEYS = 5 * 60
 
 def _make_key(namespace: Namespace, key: str) -> str:
