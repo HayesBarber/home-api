@@ -1,4 +1,6 @@
 from app.utils.redis_client import redis_client, Namespace
+from datetime import datetime, timedelta
+from typing import List
 from app.models.device import DeviceConfig
 from app.utils import kasa, lifx
 
@@ -32,3 +34,20 @@ def check_for_offline_devices():
         pass
      
     return offline_count
+
+def get_stale_devices(devices: List[DeviceConfig]) -> List[DeviceConfig]:
+    now = datetime.now()
+    cutoff = now - timedelta(minutes=15)
+
+    stale_devices = []
+    for device in devices:
+        if device.last_updated is None:
+            continue
+        try:
+            last_updated_dt = datetime.fromisoformat(device.last_updated)
+            if last_updated_dt < cutoff:
+                stale_devices.append(device)
+        except ValueError:
+            continue
+
+    return stale_devices
