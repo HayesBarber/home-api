@@ -2,7 +2,7 @@ from app.utils.redis_client import redis_client, Namespace
 from app.models.device import DeviceConfig
 from app.utils import kasa, lifx
 
-def check_in(device_config: DeviceConfig):
+def upsert_device(device_config: DeviceConfig):
     redis_client.set_model(Namespace.DEVICE_CONFIG, device_config.name, device_config)
 
 def trigger_discovery():

@@ -6,7 +6,7 @@ router = APIRouter(prefix="/discovery", tags=["Discovery"])
 
 @router.post("/check-in", status_code=status.HTTP_204_NO_CONTENT)
 def check_in_device(config: DeviceConfig):
-    discovery_service.check_in(config)
+    discovery_service.upsert_device(config)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 @router.post("/discover")
