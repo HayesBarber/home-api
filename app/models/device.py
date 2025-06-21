@@ -19,6 +19,7 @@ class DeviceConfig(BaseModel):
     type: DeviceType
     power_state: PowerState
     last_updated: Optional[str] = None
+    is_offline: bool = False
 
     @field_validator("last_updated", mode="before")
     @classmethod
