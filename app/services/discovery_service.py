@@ -31,6 +31,7 @@ def check_for_offline_devices():
     stale = get_stale_devices(devices)
 
     for device in stale:
+        print(f"{device.name} is stale, marking as offline")
         device.is_offline = True
     
     redis_client.set_all_models(DeviceConfig, stale, "name")
