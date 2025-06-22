@@ -12,4 +12,3 @@ def set_state(name: str, action: PowerAction):
 
     device_config_service.upsert_device(device)
     return device
-    
