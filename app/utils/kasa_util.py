@@ -29,7 +29,7 @@ def discover_kasa_devices() -> List[DeviceConfig]:
     return asyncio.run(_discover_kasa_devices_async())
 
 async def _control_kasa_device_async(config: DeviceConfig, action: PowerAction):
-    device = await Device.connect(host=config.ip)
+    device = await Device.connect(host=str(config.ip))
     match action:
         case PowerAction.ON:
             await device.turn_on()
