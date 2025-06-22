@@ -11,3 +11,5 @@ def set_state(name: str, action: PowerAction):
         device.power_state = new_state
         device_config_service.upsert_device(device)
     
+    return device
+    
