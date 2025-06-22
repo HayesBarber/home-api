@@ -28,16 +28,23 @@ async def _discover_kasa_devices_async() -> List[DeviceConfig]:
 def discover_kasa_devices() -> List[DeviceConfig]:
     return asyncio.run(_discover_kasa_devices_async())
 
-async def _control_kasa_device_async(config: DeviceConfig, action: PowerAction):
+async def _control_kasa_device_async(config: DeviceConfig, action: PowerAction) -> PowerState:
     device = await Device.connect(host=str(config.ip))
     match action:
         case PowerAction.ON:
             await device.turn_on()
+            return PowerState.ON
         case PowerAction.OFF:
             await device.turn_off()
+            return PowerState.OFF
         case PowerAction.TOGGLE:
-            await device.turn_off() if device.is_on else await device.turn_on()
+            if device.is_on:
+                await device.turn_off()
+                return PowerState.OFF
+            else:
+                await device.turn_on()
+                return PowerState.ON
 
-def control_kasa_device(config: DeviceConfig, action: PowerAction):
+def control_kasa_device(config: DeviceConfig, action: PowerAction) -> PowerState:
     return asyncio.run(_control_kasa_device_async(config, action))
 
