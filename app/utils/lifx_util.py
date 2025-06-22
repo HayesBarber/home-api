@@ -1,6 +1,6 @@
 from lifxlan import LifxLAN
 from app import config
-from app.models.device import DeviceConfig, DeviceType, PowerState
+from app.models.device import DeviceConfig, DeviceType, PowerState, PowerAction
 from typing import List
 
 _lifx = LifxLAN(config.NUM_OF_LIFX_LIGHTS)
@@ -25,3 +25,6 @@ def discover_lifx_devices() -> List[DeviceConfig]:
         print("No Lifx devices found")
 
     return results
+
+def control_lifx_device(config: DeviceConfig, action: PowerAction) -> PowerState:
+    pass
