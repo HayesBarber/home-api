@@ -13,6 +13,11 @@ class PowerState(str, Enum):
     ON = "on"
     OFF = "off"
 
+class PowerAction(str, Enum):
+    ON = "on"
+    OFF = "off"
+    TOGGLE = "toggle"
+
 class DeviceConfig(BaseModel):
     name: str
     ip: IPv4Address
