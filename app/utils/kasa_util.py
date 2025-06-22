@@ -1,6 +1,6 @@
 import asyncio
-from kasa import Discover
-from app.models.device import DeviceConfig, DeviceType, PowerState
+from kasa import Discover, Device
+from app.models.device import DeviceConfig, DeviceType, PowerState, PowerAction
 from typing import List
 
 async def _discover_kasa_devices_async() -> List[DeviceConfig]:
@@ -27,3 +27,7 @@ async def _discover_kasa_devices_async() -> List[DeviceConfig]:
 
 def discover_kasa_devices() -> List[DeviceConfig]:
     return asyncio.run(_discover_kasa_devices_async())
+
+async def _control_kasa_device(config: DeviceConfig, action: PowerAction):
+    device = await Device.connect(host="172.16.2.109")
+    device.turn_off()
