@@ -9,7 +9,7 @@ def set_state(name: str, action: PowerAction):
     if device.type == DeviceType.KASA:
         new_state = kasa_util.control_kasa_device(device, action)
         device.power_state = new_state
-        device_config_service.upsert_device(device)
-    
+
+    device_config_service.upsert_device(device)
     return device
     
