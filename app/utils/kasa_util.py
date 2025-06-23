@@ -49,3 +49,5 @@ async def _control_kasa_device_async(config: DeviceConfig, action: PowerAction) 
 def control_kasa_device(config: DeviceConfig, action: PowerAction) -> PowerState:
     return asyncio.run(_control_kasa_device_async(config, action))
 
+def update_kasa_device_name(config: DeviceConfig, new_name: str) -> str:
+    pass
