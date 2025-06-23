@@ -1,13 +1,13 @@
-from lifxlan import LifxLAN
+from lifxlan import LifxLAN, Light
 from app import config
-from app.models.device import DeviceConfig, DeviceType, PowerState
+from app.models.device import DeviceConfig, DeviceType, PowerState, PowerAction
 from typing import List
 
 _lifx = LifxLAN(config.NUM_OF_LIFX_LIGHTS)
 
 def discover_lifx_devices() -> List[DeviceConfig]:
     print("Discovering Lifx devices...")
-    devices = _lifx.get_lights()
+    devices: List[Light] = _lifx.get_lights()
     results = []
 
     for d in devices:
@@ -16,6 +16,7 @@ def discover_lifx_devices() -> List[DeviceConfig]:
             DeviceConfig(
                 name=d.get_label(),
                 ip=d.get_ip_addr(),
+                mac=d.get_mac_addr(),
                 type=DeviceType.LIFX,
                 power_state=PowerState.ON if d.get_power() else PowerState.OFF,
             )
@@ -25,3 +26,20 @@ def discover_lifx_devices() -> List[DeviceConfig]:
         print("No Lifx devices found")
 
     return results
+
+def control_lifx_device(config: DeviceConfig, action: PowerAction) -> PowerState:
+    device = Light(config.mac, str(config.ip)) 
+    match action:
+        case PowerAction.ON:
+            device.set_power("on")
+            return PowerState.ON
+        case PowerAction.OFF:
+            device.set_power("off")
+            return PowerState.OFF
+        case PowerAction.TOGGLE:
+            if device.get_power():
+                device.set_power("off")
+                return PowerState.OFF
+            else:
+                device.set_power("on")
+                return PowerState.ON

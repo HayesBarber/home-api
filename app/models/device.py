@@ -21,6 +21,7 @@ class PowerAction(str, Enum):
 class DeviceConfig(BaseModel):
     name: str
     ip: IPv4Address
+    mac: str
     type: DeviceType
     power_state: PowerState
     last_updated: Optional[str] = None
