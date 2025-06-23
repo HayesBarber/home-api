@@ -11,3 +11,7 @@ def read_all_devices():
 def delete_device(device_name: str):
     device_config_service.delete_devcie(device_name)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+@router.patch("/update-name")
+def update_device_name(old_name: str, new_name: str):
+    pass
