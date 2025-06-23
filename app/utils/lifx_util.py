@@ -28,4 +28,20 @@ def discover_lifx_devices() -> List[DeviceConfig]:
     return results
 
 def control_lifx_device(config: DeviceConfig, action: PowerAction) -> PowerState:
-    pass
+    device = Light(config.mac, str(config.ip)) 
+    match action:
+        case PowerAction.ON:
+            device.set_power("on")
+            return PowerState.ON
+        case PowerAction.OFF:
+            device.set_power("off")
+            return PowerState.OFF
+        case PowerAction.TOGGLE:
+            if device.get_power():
+                device.set_power("off")
+                return PowerState.OFF
+            else:
+                device.set_power("off")
+                return PowerState.OFF
+
+
