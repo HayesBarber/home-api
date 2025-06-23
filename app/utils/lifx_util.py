@@ -41,7 +41,7 @@ def control_lifx_device(config: DeviceConfig, action: PowerAction) -> PowerState
                 device.set_power("off")
                 return PowerState.OFF
             else:
-                device.set_power("off")
-                return PowerState.OFF
+                device.set_power("on")
+                return PowerState.ON
 
 
