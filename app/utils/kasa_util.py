@@ -15,6 +15,7 @@ async def _discover_kasa_devices_async() -> List[DeviceConfig]:
             DeviceConfig(
                 name=dev.alias,
                 ip=addr,
+                mac=dev.mac,
                 type=DeviceType.KASA,
                 power_state=PowerState.ON if dev.is_on else PowerState.OFF,
             )
