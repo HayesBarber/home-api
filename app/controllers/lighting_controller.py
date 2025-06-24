@@ -10,4 +10,4 @@ def set_device_state(device_name: str, action: PowerAction):
 
 @router.post("/set-room-state")
 def set_room_state(room: Room, action: PowerAction):
-    pass
+    return lighting_service.set_room_state(room, action)
