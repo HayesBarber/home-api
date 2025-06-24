@@ -36,4 +36,12 @@ def update_device_name(name: str, new_name: str):
     return device
 
 def extract_room_name(device_name: str) -> Room:
-    pass
+    name_lower = device_name.lower()
+    if "bedroom" in name_lower:
+        return Room.BEDROOM
+    elif "living" in name_lower or "living_room" in name_lower:
+        return Room.LIVING_ROOM
+    elif "upstairs" in name_lower:
+        return Room.UPSTAIRS
+    else:
+        return Room.LIVING_ROOM
