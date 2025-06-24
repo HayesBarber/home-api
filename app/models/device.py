@@ -5,6 +5,7 @@ from typing import Optional
 from datetime import datetime
 
 class Room(str, Enum):
+    HOME = "home"
     BEDROOM = "bedroom"
     LIVING_ROOM = "living_room"
     UPSTAIRS = "upstairs"
@@ -31,7 +32,7 @@ class DeviceConfig(BaseModel):
     power_state: PowerState
     last_updated: Optional[str] = None
     is_offline: bool = False
-    room: Room = Room.LIVING_ROOM
+    room: Room = Room.HOME
 
     @field_validator("last_updated", mode="before")
     @classmethod
