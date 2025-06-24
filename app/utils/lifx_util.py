@@ -49,4 +49,7 @@ def control_lifx_device(config: DeviceConfig, action: PowerAction) -> PowerState
                 return PowerState.ON
 
 def update_lifx_device_name(config: DeviceConfig, new_name: str) -> str:
-    pass
+    device = _connect(config)
+    device.set_label(new_name)
+    return new_name
+    
