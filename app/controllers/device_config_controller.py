@@ -14,4 +14,4 @@ def delete_device(device_name: str):
 
 @router.patch("/update-name")
 def update_device_name(old_name: str, new_name: str):
-    pass
+    return device_config_service.update_device_name(old_name, new_name)
