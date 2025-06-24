@@ -13,13 +13,14 @@ def read_all_devices():
 def delete_devcie(name: str):
     redis_client.delete(Namespace.DEVICE_CONFIG, name)
 
-def get_device_config(name: str) -> Optional[DeviceConfig]:
-    return redis_client.get_model(Namespace.DEVICE_CONFIG, name, DeviceConfig)
+def get_device_config(name: str) -> DeviceConfig:
+    config = redis_client.get_model(Namespace.DEVICE_CONFIG, name, DeviceConfig)
+    if not config:
+        raise KeyError(f"{name} config not found")
+    return config
 
 def update_device_name(name: str, new_name: str):
     device = get_device_config(name)
-    if not device:
-        return
 
     match device.type:
         case DeviceType.KASA:

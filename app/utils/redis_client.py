@@ -46,8 +46,7 @@ class RedisClient:
         try:
             return model.model_validate_json(raw)
         except ValidationError:
-            print(f"[Redis] Invalid model JSON for key: {_make_key(namespace, key)}")
-            return None
+            raise RuntimeError(f"Invalid model JSON for key: {_make_key(namespace, key)}")
 
     def set_model(self, namespace: Namespace, key: str, model_instance: BaseModel):
         self.set(namespace, key, model_instance.model_dump_json())
