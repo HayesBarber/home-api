@@ -52,4 +52,4 @@ def update_lifx_device_name(config: DeviceConfig, new_name: str) -> str:
     device = _connect(config)
     device.set_label(new_name)
     return new_name
-    
+ 
