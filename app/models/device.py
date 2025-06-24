@@ -4,6 +4,11 @@ from ipaddress import IPv4Address
 from typing import Optional
 from datetime import datetime
 
+class Room(str, Enum):
+    BEDROOM = "bedroom"
+    LIVING_ROOM = "living_room"
+    UPSTAIRS = "upstairs"
+
 class DeviceType(str, Enum):
     KASA = "kasa"
     LIFX = "lifx"
