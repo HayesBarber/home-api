@@ -27,8 +27,12 @@ def discover_lifx_devices() -> List[DeviceConfig]:
 
     return results
 
+def _connect(config: DeviceConfig) -> Light:
+    light = Light(config.mac, str(config.ip)) 
+    return light
+
 def control_lifx_device(config: DeviceConfig, action: PowerAction) -> PowerState:
-    device = Light(config.mac, str(config.ip)) 
+    device = _connect(config)
     match action:
         case PowerAction.ON:
             device.set_power("on")
@@ -43,3 +47,8 @@ def control_lifx_device(config: DeviceConfig, action: PowerAction) -> PowerState
             else:
                 device.set_power("on")
                 return PowerState.ON
+
+def update_lifx_device_name(config: DeviceConfig, new_name: str) -> str:
+    device = _connect(config)
+    device.set_label(new_name)
+    return new_name

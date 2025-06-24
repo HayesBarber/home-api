@@ -4,8 +4,6 @@ from app.services import device_config_service
 
 def set_state(name: str, action: PowerAction):
     device = device_config_service.get_device_config(name)
-    if not device:
-        return
 
     match device.type:
         case DeviceType.KASA:

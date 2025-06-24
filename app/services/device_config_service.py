@@ -1,6 +1,6 @@
 from app.utils.redis_client import redis_client, Namespace
-from app.models.device import DeviceConfig
-from typing import Optional
+from app.utils import kasa_util, lifx_util
+from app.models.device import DeviceConfig, DeviceType
 
 def upsert_device(device_config: DeviceConfig):
     redis_client.set_model(Namespace.DEVICE_CONFIG, device_config.name, device_config)
@@ -12,5 +12,25 @@ def read_all_devices():
 def delete_devcie(name: str):
     redis_client.delete(Namespace.DEVICE_CONFIG, name)
 
-def get_device_config(name: str) -> Optional[DeviceConfig]:
-    return redis_client.get_model(Namespace.DEVICE_CONFIG, name, DeviceConfig)
+def get_device_config(name: str) -> DeviceConfig:
+    config = redis_client.get_model(Namespace.DEVICE_CONFIG, name, DeviceConfig)
+    if not config:
+        raise KeyError(f"{name} config not found")
+    return config
+
+def update_device_name(name: str, new_name: str):
+    device = get_device_config(name)
+
+    match device.type:
+        case DeviceType.KASA:
+            updated_name = kasa_util.update_kasa_device_name(device, new_name)
+        case DeviceType.LIFX:
+            updated_name = lifx_util.update_lifx_device_name(device, new_name)
+        case DeviceType.LED_STRIP:
+            updated_name = device.name
+
+    device.name = updated_name
+    upsert_device(device)
+    # deleting since this is changing the primary key
+    delete_devcie(name)
+    return device

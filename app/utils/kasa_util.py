@@ -29,8 +29,12 @@ async def _discover_kasa_devices_async() -> List[DeviceConfig]:
 def discover_kasa_devices() -> List[DeviceConfig]:
     return asyncio.run(_discover_kasa_devices_async())
 
-async def _control_kasa_device_async(config: DeviceConfig, action: PowerAction) -> PowerState:
+async def _connect(config: DeviceConfig) -> Device:
     device = await Device.connect(host=str(config.ip))
+    return device
+
+async def _control_kasa_device_async(config: DeviceConfig, action: PowerAction) -> PowerState:
+    device = await _connect(config)
     match action:
         case PowerAction.ON:
             await device.turn_on()
@@ -48,4 +52,12 @@ async def _control_kasa_device_async(config: DeviceConfig, action: PowerAction) 
 
 def control_kasa_device(config: DeviceConfig, action: PowerAction) -> PowerState:
     return asyncio.run(_control_kasa_device_async(config, action))
+
+async def _update_kasa_device_name_async(config: DeviceConfig, new_name: str) -> str:
+    device = await _connect(config)
+    await device.set_alias(new_name)
+    return new_name
+
+def update_kasa_device_name(config: DeviceConfig, new_name: str) -> str:
+    return asyncio.run(_update_kasa_device_name_async(config, new_name))
 

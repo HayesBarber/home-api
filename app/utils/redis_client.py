@@ -18,7 +18,7 @@ class TTL(int, Enum):
     API_KEYS = 5 * 60
 
 def _make_key(namespace: Namespace, key: str) -> str:
-    return f"{namespace.value}:{key}"
+    return f"{namespace.value}:{key.strip()}"
 
 def _get_ttl(ns: Namespace) -> Optional[int]:
     return TTL[ns.name].value if ns.name in TTL.__members__ else None
@@ -34,6 +34,7 @@ class RedisClient:
 
     def set(self, namespace: Namespace, key: str, value: Any):
         val = value if isinstance(value, (str, bytes)) else str(value)
+        val = val.strip()
         self._redis.set(_make_key(namespace, key), val, ex=_get_ttl(namespace))
 
     def delete(self, namespace: Namespace, key: str):
@@ -46,8 +47,7 @@ class RedisClient:
         try:
             return model.model_validate_json(raw)
         except ValidationError:
-            print(f"[Redis] Invalid model JSON for key: {_make_key(namespace, key)}")
-            return None
+            raise RuntimeError(f"Invalid model JSON for key: {_make_key(namespace, key)}")
 
     def set_model(self, namespace: Namespace, key: str, model_instance: BaseModel):
         self.set(namespace, key, model_instance.model_dump_json())
