@@ -1,6 +1,6 @@
 from app.utils.redis_client import redis_client, Namespace
 from app.utils import kasa_util, lifx_util
-from app.models.device import DeviceConfig, DeviceType
+from app.models.device import DeviceConfig, DeviceType, Room
 
 def upsert_device(device_config: DeviceConfig):
     redis_client.set_model(Namespace.DEVICE_CONFIG, device_config.name, device_config)
@@ -34,3 +34,6 @@ def update_device_name(name: str, new_name: str):
     # deleting since this is changing the primary key
     delete_devcie(name)
     return device
+
+def extract_room_name(device_name: str) -> Room:
+    pass
