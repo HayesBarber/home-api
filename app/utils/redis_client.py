@@ -18,7 +18,7 @@ class TTL(int, Enum):
     API_KEYS = 5 * 60
 
 def _make_key(namespace: Namespace, key: str) -> str:
-    return f"{namespace.value}:{key}"
+    return f"{namespace.value}:{key.strip()}"
 
 def _get_ttl(ns: Namespace) -> Optional[int]:
     return TTL[ns.name].value if ns.name in TTL.__members__ else None
