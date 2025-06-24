@@ -34,6 +34,7 @@ class RedisClient:
 
     def set(self, namespace: Namespace, key: str, value: Any):
         val = value if isinstance(value, (str, bytes)) else str(value)
+        val = val.strip()
         self._redis.set(_make_key(namespace, key), val, ex=_get_ttl(namespace))
 
     def delete(self, namespace: Namespace, key: str):
