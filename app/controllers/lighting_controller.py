@@ -4,6 +4,6 @@ from app.models.device import PowerAction
 
 router = APIRouter(prefix="/lighting", tags=["Lighting"])
 
-@router.post("/set-state")
+@router.post("/set-device-state")
 def set_device_state(device_name: str, action: PowerAction):
-    return lighting_service.set_state(device_name, action)
+    return lighting_service.set_device_state(device_name, action)

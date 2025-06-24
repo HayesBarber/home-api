@@ -2,7 +2,7 @@ from app.models.device import PowerAction, DeviceType
 from app.utils import kasa_util, lifx_util
 from app.services import device_config_service
 
-def set_state(name: str, action: PowerAction):
+def set_device_state(name: str, action: PowerAction):
     device = device_config_service.get_device_config(name)
 
     match device.type:
