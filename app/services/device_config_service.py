@@ -1,5 +1,6 @@
 from app.utils.redis_client import redis_client, Namespace
-from app.models.device import DeviceConfig
+from app.utils import kasa_util, lifx_util
+from app.models.device import DeviceConfig, DeviceType
 from typing import Optional
 
 def upsert_device(device_config: DeviceConfig):
@@ -14,3 +15,20 @@ def delete_devcie(name: str):
 
 def get_device_config(name: str) -> Optional[DeviceConfig]:
     return redis_client.get_model(Namespace.DEVICE_CONFIG, name, DeviceConfig)
+
+def update_device_name(name: str, new_name: str):
+    device = get_device_config(name)
+    if not device:
+        return
+
+    match device.type:
+        case DeviceType.KASA:
+            updated_name = kasa_util.update_kasa_device_name(device, new_name)
+        case DeviceType.LIFX:
+            updated_name = lifx_util.update_lifx_device_name(device, new_name)
+        case DeviceType.LED_STRIP:
+            updated_name = device.name
+
+    device.name = updated_name
+    upsert_device(device)
+    return device
