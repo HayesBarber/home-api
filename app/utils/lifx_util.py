@@ -2,6 +2,7 @@ from lifxlan import LifxLAN, Light
 from app import config
 from app.models.device import DeviceConfig, DeviceType, PowerState, PowerAction
 from typing import List
+from app.services import device_config_service
 
 _lifx = LifxLAN(config.NUM_OF_LIFX_LIGHTS)
 
@@ -12,13 +13,15 @@ def discover_lifx_devices() -> List[DeviceConfig]:
 
     for d in devices:
         print(f"Found {d.get_label()} at {d.get_ip_addr()}")
+        room, cleaned_name = device_config_service.extract_room_name(d.get_label())
         results.append(
             DeviceConfig(
-                name=d.get_label(),
+                name=cleaned_name,
                 ip=d.get_ip_addr(),
                 mac=d.get_mac_addr(),
                 type=DeviceType.LIFX,
                 power_state=PowerState.ON if d.get_power() else PowerState.OFF,
+                room=room
             )
         )
 

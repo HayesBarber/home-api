@@ -4,6 +4,11 @@ from ipaddress import IPv4Address
 from typing import Optional
 from datetime import datetime
 
+class Room(str, Enum):
+    BEDROOM = "bedroom"
+    LIVING_ROOM = "living_room"
+    UPSTAIRS = "upstairs"
+
 class DeviceType(str, Enum):
     KASA = "kasa"
     LIFX = "lifx"
@@ -26,6 +31,7 @@ class DeviceConfig(BaseModel):
     power_state: PowerState
     last_updated: Optional[str] = None
     is_offline: bool = False
+    room: Room = Room.LIVING_ROOM
 
     @field_validator("last_updated", mode="before")
     @classmethod

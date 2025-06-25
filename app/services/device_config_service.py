@@ -1,6 +1,7 @@
 from app.utils.redis_client import redis_client, Namespace
 from app.utils import kasa_util, lifx_util
-from app.models.device import DeviceConfig, DeviceType
+from app.models.device import DeviceConfig, DeviceType, Room
+from typing import List
 
 def upsert_device(device_config: DeviceConfig):
     redis_client.set_model(Namespace.DEVICE_CONFIG, device_config.name, device_config)
@@ -18,19 +19,37 @@ def get_device_config(name: str) -> DeviceConfig:
         raise KeyError(f"{name} config not found")
     return config
 
+def get_devices_of_room(room: Room) -> List[DeviceConfig]:
+    all_devices = read_all_devices()
+    return [device for device in all_devices if device.room == room]
+
 def update_device_name(name: str, new_name: str):
     device = get_device_config(name)
 
     match device.type:
         case DeviceType.KASA:
-            updated_name = kasa_util.update_kasa_device_name(device, new_name)
+            kasa_util.update_kasa_device_name(device, new_name)
         case DeviceType.LIFX:
-            updated_name = lifx_util.update_lifx_device_name(device, new_name)
+            lifx_util.update_lifx_device_name(device, new_name)
         case DeviceType.LED_STRIP:
-            updated_name = device.name
+            pass
 
-    device.name = updated_name
-    upsert_device(device)
     # deleting since this is changing the primary key
     delete_devcie(name)
-    return device
+    return {"message": "Device will be updated in the system upon next discovery or check-in"}
+
+def extract_room_name(device_name: str) -> tuple[Room, str]:
+    if "--bedroom--" in device_name:
+        room = Room.BEDROOM
+        stripped_name = device_name.replace("--bedroom--", "", 1).strip()
+    elif "--living_room--" in device_name:
+        room = Room.LIVING_ROOM
+        stripped_name = device_name.replace("--living_room--", "", 1).strip()
+    elif "--upstairs--" in device_name:
+        room = Room.UPSTAIRS
+        stripped_name = device_name.replace("--upstairs--", "", 1).strip()
+    else:
+        room = Room.LIVING_ROOM
+        stripped_name = device_name.strip()
+
+    return room, stripped_name

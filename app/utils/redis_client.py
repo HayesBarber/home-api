@@ -8,11 +8,6 @@ T = TypeVar("T", bound=BaseModel)
 
 class Namespace(str, Enum):
     DEVICE_CONFIG = "device_config"
-    USERS = "users"
-    CHALLENGES = "challenges"
-    API_KEYS = "api_keys"
-    ROUTINES = "routines"
-    THEMES = "themes"
 
 class TTL(int, Enum):
     API_KEYS = 5 * 60
