@@ -46,13 +46,13 @@ def extract_room_name(device_name: str) -> tuple[Room, str]:
 
     if "bedroom" in name_lower:
         room = Room.BEDROOM
-        stripped_name = original_name.replace("bedroom", "").strip()
-    elif "living" in name_lower or "living_room" in name_lower:
+        stripped_name = original_name.replace("bedroom", "", 1).strip()
+    elif "living_room" in name_lower:
         room = Room.LIVING_ROOM
-        stripped_name = original_name.replace("living room", "").replace("living", "").strip()
+        stripped_name = original_name.replace("living room", "", 1).strip()
     elif "upstairs" in name_lower:
         room = Room.UPSTAIRS
-        stripped_name = original_name.replace("upstairs", "").strip()
+        stripped_name = original_name.replace("upstairs", "", 1).strip()
     else:
         room = Room.LIVING_ROOM
         stripped_name = original_name.strip()
