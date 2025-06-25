@@ -13,6 +13,14 @@ def check_in_device(config: DeviceConfig):
 def trigger_discovery():
     return discovery_service.trigger_discovery()
 
+@router.post("/discover/kasa")
+def discover_kasa():
+    return discovery_service.discover_kasa()
+
+@router.post("/discover/lifx")
+def discover_lifx():
+    return discovery_service.discover_lifx()
+
 @router.post("/check-offline")
 def check_for_offline_devices():
     return {
