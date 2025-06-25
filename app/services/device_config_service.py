@@ -1,6 +1,7 @@
 from app.utils.redis_client import redis_client, Namespace
 from app.utils import kasa_util, lifx_util
 from app.models.device import DeviceConfig, DeviceType, Room
+from typing import List
 
 def upsert_device(device_config: DeviceConfig):
     redis_client.set_model(Namespace.DEVICE_CONFIG, device_config.name, device_config)
@@ -17,6 +18,10 @@ def get_device_config(name: str) -> DeviceConfig:
     if not config:
         raise KeyError(f"{name} config not found")
     return config
+
+def get_devices_of_room(room: Room) -> List[DeviceConfig]:
+    all_devices = read_all_devices()
+    return [device for device in all_devices if device.room == room]
 
 def update_device_name(name: str, new_name: str):
     device = get_device_config(name)
