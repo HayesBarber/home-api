@@ -7,10 +7,10 @@ from app.services import device_config_service
 
 def trigger_discovery():
     lifx_devices = lifx_util.discover_lifx_devices()
-    kasa_devices = kasa_util.discover_kasa_devices()
-    all_devices = lifx_devices + kasa_devices
+    redis_client.set_all_models(Namespace.DEVICE_CONFIG, lifx_devices, "name")
 
-    redis_client.set_all_models(Namespace.DEVICE_CONFIG, all_devices, "name")
+    kasa_devices = kasa_util.discover_kasa_devices()
+    redis_client.set_all_models(Namespace.DEVICE_CONFIG, kasa_devices, "name")
 
     return {
         "lifx_devices": lifx_devices,
