@@ -28,17 +28,15 @@ def update_device_name(name: str, new_name: str):
 
     match device.type:
         case DeviceType.KASA:
-            updated_name = kasa_util.update_kasa_device_name(device, new_name)
+            kasa_util.update_kasa_device_name(device, new_name)
         case DeviceType.LIFX:
-            updated_name = lifx_util.update_lifx_device_name(device, new_name)
+            lifx_util.update_lifx_device_name(device, new_name)
         case DeviceType.LED_STRIP:
-            updated_name = device.name
+            pass
 
-    device.name = updated_name
-    upsert_device(device)
     # deleting since this is changing the primary key
     delete_devcie(name)
-    return device
+    return {"message": "Device will be updated in the system upon next discovery or check-in"}
 
 def extract_room_name(device_name: str) -> tuple[Room, str]:
     if "--bedroom--" in device_name:
