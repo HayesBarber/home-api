@@ -5,12 +5,19 @@ from app.models.device import DeviceConfig
 from app.utils import kasa_util, lifx_util
 from app.services import device_config_service
 
-def trigger_discovery():
+def discover_lifx() -> List[DeviceConfig]:
     lifx_devices = lifx_util.discover_lifx_devices()
     redis_client.set_all_models(Namespace.DEVICE_CONFIG, lifx_devices, "name")
+    return lifx_devices
 
+def discover_kasa() -> List[DeviceConfig]:
     kasa_devices = kasa_util.discover_kasa_devices()
     redis_client.set_all_models(Namespace.DEVICE_CONFIG, kasa_devices, "name")
+    return kasa_devices
+
+def trigger_discovery():
+    lifx_devices = discover_lifx()
+    kasa_devices = discover_kasa()
 
     return {
         "lifx_devices": lifx_devices,
