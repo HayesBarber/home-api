@@ -41,20 +41,17 @@ def update_device_name(name: str, new_name: str):
     return device
 
 def extract_room_name(device_name: str) -> tuple[Room, str]:
-    name_lower = device_name.lower()
-    original_name = device_name
-
-    if "bedroom" in name_lower:
+    if "--bedroom--" in device_name:
         room = Room.BEDROOM
-        stripped_name = original_name.replace("bedroom", "", 1).strip()
-    elif "living_room" in name_lower:
+        stripped_name = device_name.replace("--bedroom--", "", 1).strip()
+    elif "--living_room--" in device_name:
         room = Room.LIVING_ROOM
-        stripped_name = original_name.replace("living_room", "", 1).strip()
-    elif "upstairs" in name_lower:
+        stripped_name = device_name.replace("--living_room--", "", 1).strip()
+    elif "--upstairs--" in device_name:
         room = Room.UPSTAIRS
-        stripped_name = original_name.replace("upstairs", "", 1).strip()
+        stripped_name = device_name.replace("--upstairs--", "", 1).strip()
     else:
         room = Room.LIVING_ROOM
-        stripped_name = original_name.strip()
+        stripped_name = device_name.strip()
 
     return room, stripped_name
