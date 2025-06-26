@@ -2,6 +2,7 @@ from app.models.device import PowerAction, DeviceType, Room, DeviceConfig, Power
 from app.utils import kasa_util, lifx_util
 from app.utils.redis_client import redis_client, Namespace
 from app.services import device_config_service
+from typing import List, Optional
 
 def set_state(name: str, action: PowerAction):
     if name == "home":
@@ -44,14 +45,14 @@ def set_room_state(room: Room, action: PowerAction):
     redis_client.set_all_models(Namespace.DEVICE_CONFIG, updated_devices, "name")
     return updated_devices
 
-def get_power_state_of_home() -> PowerState:
+def get_power_state_of_home(devices: Optional[List[DeviceConfig]] = None) -> PowerState:
     pass
 
 def set_home_state(action: PowerAction):
     devices = device_config_service.read_all_devices()
     updated_devices = []
 
-    action = PowerAction.ON if get_power_state_of_home() == PowerState.OFF else PowerAction.OFF
+    action = PowerAction.ON if get_power_state_of_home(devices) == PowerState.OFF else PowerAction.OFF
 
     for device in devices:
         new_state = _get_new_device_state(device, action)
