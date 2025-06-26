@@ -44,6 +44,9 @@ def set_room_state(room: Room, action: PowerAction):
     redis_client.set_all_models(Namespace.DEVICE_CONFIG, updated_devices, "name")
     return updated_devices
 
+def get_power_state_of_home() -> PowerState:
+    pass
+
 def set_home_state(action: PowerAction):
     devices = device_config_service.read_all_devices()
     updated_devices = []
