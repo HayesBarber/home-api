@@ -6,7 +6,7 @@ from typing import List
 def upsert_device(device_config: DeviceConfig):
     redis_client.set_model(Namespace.DEVICE_CONFIG, device_config.name, device_config)
 
-def read_all_devices():
+def read_all_devices() -> List[DeviceConfig]:
     all_configs_dict = redis_client.get_all_models(Namespace.DEVICE_CONFIG, DeviceConfig)
     return list(all_configs_dict.values())
 
