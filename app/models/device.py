@@ -11,10 +11,10 @@ class Room(str, Enum):
     UPSTAIRS = "upstairs"
 
 def get_room_from_string(name: str) -> Optional[Room]:
-    try:
-        return Room(name.lower())
-    except ValueError:
-        return None
+    for room in Room:
+        if room.value == name:
+            return room
+    return None
 
 class DeviceType(str, Enum):
     KASA = "kasa"
