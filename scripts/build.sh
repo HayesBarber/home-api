@@ -3,6 +3,7 @@
 set -e
 
 source .env
+TAR_PATH=./build/${IMAGE_NAME}.tar
 
 echo "Removing old tar if it exists..."
 [ -f "$TAR_PATH" ] && rm "$TAR_PATH"
