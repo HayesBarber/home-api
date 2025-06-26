@@ -51,6 +51,8 @@ def set_home_state(action: PowerAction):
     devices = device_config_service.read_all_devices()
     updated_devices = []
 
+    action = PowerAction.ON if get_power_state_of_home() == PowerState.OFF else PowerAction.OFF
+
     for device in devices:
         new_state = _get_new_device_state(device, action)
 
