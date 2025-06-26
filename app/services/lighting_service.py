@@ -48,6 +48,17 @@ def set_room_state(room: Room, action: PowerAction):
 def get_power_state_of_home(devices: Optional[List[DeviceConfig]] = None) -> PowerState:
     if devices is None:
         devices = device_config_service.read_all_devices()
+    
+    for device in devices:
+        match device.type:
+            case DeviceType.KASA:
+                if kasa_util.get_kasa_device_power_state(device) == PowerState.ON:
+                    return PowerState.ON
+            case DeviceType.LIFX:
+                if lifx_util.get_lifx_device_power_state(device) == PowerState.ON:
+                    return PowerState.ON
+    
+    return PowerState.OFF
 
 def set_home_state(action: PowerAction):
     devices = device_config_service.read_all_devices()
