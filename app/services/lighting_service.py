@@ -46,7 +46,8 @@ def set_room_state(room: Room, action: PowerAction):
     return updated_devices
 
 def get_power_state_of_home(devices: Optional[List[DeviceConfig]] = None) -> PowerState:
-    pass
+    if devices is None:
+        devices = device_config_service.read_all_devices()
 
 def set_home_state(action: PowerAction):
     devices = device_config_service.read_all_devices()
