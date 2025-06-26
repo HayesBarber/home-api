@@ -4,7 +4,8 @@ from app.utils.redis_client import redis_client, Namespace
 from app.services import device_config_service
 
 def set_state(name: str, action: PowerAction):
-    pass
+    if name == "home":
+        return set_home_state(action)
 
 def _get_new_device_state(device: DeviceConfig, action: PowerAction) -> PowerState:
     match device.type:
