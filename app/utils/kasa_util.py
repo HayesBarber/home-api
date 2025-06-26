@@ -36,6 +36,13 @@ async def _connect(config: DeviceConfig) -> Device:
     device = await Device.connect(host=str(config.ip))
     return device
 
+async def _get_kasa_device_power_state(config: DeviceConfig) -> PowerState:
+    device = await _connect(config)
+    return PowerState.ON if device.is_on else PowerState.OFF
+
+def get_kasa_device_power_state(config: DeviceConfig) -> PowerState:
+    return asyncio.run(_get_kasa_device_power_state(config))
+
 async def _control_kasa_device_async(config: DeviceConfig, action: PowerAction) -> PowerState:
     device = await _connect(config)
     match action:
