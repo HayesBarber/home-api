@@ -32,9 +32,31 @@ def set_device_state(name: str, action: PowerAction):
     device_config_service.upsert_device(device)
     return device
 
+def _get_power_state_of_devices(devices: List[DeviceConfig]) -> PowerState:
+    for device in devices:
+        if device.power_state == PowerState.ON:
+            return PowerState.ON
+    
+    return PowerState.OFF
+
+def get_power_state_of_room(room: Room, devices: Optional[List[DeviceConfig]] = None) -> PowerState:
+    if devices is None:
+        devices = device_config_service.get_devices_of_room(room)
+
+    return _get_power_state_of_devices(devices)
+
+def get_power_state_of_home(devices: Optional[List[DeviceConfig]] = None) -> PowerState:
+    if devices is None:
+        devices = device_config_service.read_all_devices()
+    
+    return _get_power_state_of_devices(devices)
+
 def set_room_state(room: Room, action: PowerAction):
     devices = device_config_service.get_devices_of_room(room)
     updated_devices = []
+
+    if action == PowerAction.TOGGLE:
+        action = PowerAction.ON if get_power_state_of_room(room, devices) == PowerState.OFF else PowerAction.OFF
 
     for device in devices:
         new_state = _get_new_device_state(device, action)
@@ -44,21 +66,6 @@ def set_room_state(room: Room, action: PowerAction):
 
     redis_client.set_all_models(Namespace.DEVICE_CONFIG, updated_devices, "name")
     return updated_devices
-
-def get_power_state_of_home(devices: Optional[List[DeviceConfig]] = None) -> PowerState:
-    if devices is None:
-        devices = device_config_service.read_all_devices()
-    
-    for device in devices:
-        match device.type:
-            case DeviceType.KASA:
-                if kasa_util.get_kasa_device_power_state(device) == PowerState.ON:
-                    return PowerState.ON
-            case DeviceType.LIFX:
-                if lifx_util.get_lifx_device_power_state(device) == PowerState.ON:
-                    return PowerState.ON
-    
-    return PowerState.OFF
 
 def set_home_state(action: PowerAction):
     devices = device_config_service.read_all_devices()
