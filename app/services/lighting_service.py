@@ -53,26 +53,22 @@ def get_power_state_of_home(devices: Optional[List[DeviceConfig]] = None) -> Pow
 
 def set_room_state(room: Room, action: PowerAction):
     devices = device_config_service.get_devices_of_room(room)
-    updated_devices = []
 
     if action == PowerAction.TOGGLE:
         action = PowerAction.ON if get_power_state_of_room(room, devices) == PowerState.OFF else PowerAction.OFF
 
-    for device in devices:
-        new_state = _get_new_device_state(device, action)
-
-        device.power_state = new_state
-        updated_devices.append(device)
-
-    redis_client.set_all_models(Namespace.DEVICE_CONFIG, updated_devices, "name")
-    return updated_devices
+    return _perform_power_action(devices, action)
 
 def set_home_state(action: PowerAction):
     devices = device_config_service.read_all_devices()
-    updated_devices = []
 
     if action == PowerAction.TOGGLE:
         action = PowerAction.ON if get_power_state_of_home(devices) == PowerState.OFF else PowerAction.OFF
+
+    return _perform_power_action(devices, action)
+
+def _perform_power_action(devices: List[DeviceConfig], action: PowerAction):
+    updated_devices = []
 
     for device in devices:
         new_state = _get_new_device_state(device, action)
