@@ -1,9 +1,10 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 class LOGGER:
     @staticmethod
     def _format_prefix() -> str:
-        now = datetime.now()
+        now = datetime.now(ZoneInfo("America/New_York"))
         formatted = now.strftime("[%a, %b %d %I:%M:%S %p]")
         return formatted
 
