@@ -3,15 +3,16 @@ from kasa import Discover, Device
 from app.models.device import DeviceConfig, DeviceType, PowerState, PowerAction
 from typing import List
 from app.services import device_config_service
+from app.utils.logger import LOGGER
 
 async def _discover_kasa_devices_async() -> List[DeviceConfig]:
-    print("Discovering Kasa devices...")
+    LOGGER.info("Discovering Kasa devices...")
     devices = await Discover.discover()
 
     results = []
     for addr, dev in devices.items():
         await dev.update()
-        print(f"Found {dev.alias} at {addr}")
+        LOGGER.info(f"Found {dev.alias} at {addr}")
         room, cleaned_name = device_config_service.extract_room_name(dev.alias)
         results.append(
             DeviceConfig(
@@ -25,7 +26,7 @@ async def _discover_kasa_devices_async() -> List[DeviceConfig]:
         )
 
     if not results:
-        print("No Kasa devices found")
+        LOGGER.info("No Kasa devices found")
 
     return results
 

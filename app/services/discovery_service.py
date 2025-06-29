@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from typing import List
 from app.models.device import DeviceConfig
 from app.utils import kasa_util, lifx_util
+from app.utils.logger import LOGGER
 from app.services import device_config_service
 
 def discover_lifx() -> List[DeviceConfig]:
@@ -29,7 +30,7 @@ def check_for_offline_devices():
     stale = get_stale_devices(devices)
 
     for device in stale:
-        print(f"{device.name} is stale, marking as offline")
+        LOGGER.info(f"{device.name} is stale, marking as offline")
         device.is_offline = True
     
     redis_client.set_all_models(Namespace.DEVICE_CONFIG, stale, "name")

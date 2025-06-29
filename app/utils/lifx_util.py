@@ -3,16 +3,17 @@ from app import config
 from app.models.device import DeviceConfig, DeviceType, PowerState, PowerAction
 from typing import List
 from app.services import device_config_service
+from app.utils.logger import LOGGER
 
 _lifx = LifxLAN(config.NUM_OF_LIFX_LIGHTS)
 
 def discover_lifx_devices() -> List[DeviceConfig]:
-    print("Discovering Lifx devices...")
+    LOGGER.info("Discovering Lifx devices...")
     devices: List[Light] = _lifx.get_lights()
     results = []
 
     for d in devices:
-        print(f"Found {d.get_label()} at {d.get_ip_addr()}")
+        LOGGER.info(f"Found {d.get_label()} at {d.get_ip_addr()}")
         room, cleaned_name = device_config_service.extract_room_name(d.get_label())
         results.append(
             DeviceConfig(
@@ -26,7 +27,7 @@ def discover_lifx_devices() -> List[DeviceConfig]:
         )
 
     if not devices:
-        print("No Lifx devices found")
+        LOGGER.info("No Lifx devices found")
 
     return results
 

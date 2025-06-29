@@ -3,6 +3,7 @@ import redis
 from enum import Enum
 from typing import Optional, Any, Type, TypeVar, Dict, Tuple, Iterator, List
 from pydantic import BaseModel, ValidationError
+from app.utils.logger import LOGGER
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -70,9 +71,9 @@ class RedisClient:
             try:
                 models[key] = model.model_validate_json(val)
             except ValidationError:
-                print(f"[Redis] Skipping invalid model for key: {_make_key(namespace, key)}")
+                LOGGER.error(f"[Redis] Skipping invalid model for key: {_make_key(namespace, key)}")
             except Exception as e:
-                print(f"[Redis] Unexpected error on key {_make_key(namespace, key)}: {e}")
+                LOGGER.error(f"[Redis] Unexpected error on key {_make_key(namespace, key)}: {e}")
         return models
 
     def set_all_models(self, namespace: Namespace, model_list: List[T], key_field: str) -> int:
