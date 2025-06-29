@@ -1,11 +1,10 @@
 from lifxlan import LifxLAN, Light
-from app import config
 from app.models.device import DeviceConfig, DeviceType, PowerState, PowerAction
 from typing import List
 from app.services import device_config_service
 from app.utils.logger import LOGGER
 
-_lifx = LifxLAN(config.NUM_OF_LIFX_LIGHTS)
+_lifx = LifxLAN()
 
 def discover_lifx_devices() -> List[DeviceConfig]:
     LOGGER.info("Discovering Lifx devices...")
