@@ -1,6 +1,7 @@
 from app.models.device import PowerAction, DeviceType, Room, DeviceConfig, PowerState, get_room_from_string
 from app.utils import kasa_util, lifx_util
 from app.utils.redis_client import redis_client, Namespace
+from app.utils.logger import LOGGER
 from app.services import device_config_service
 from typing import List, Optional
 
@@ -15,13 +16,17 @@ def set_state(name: str, action: PowerAction):
     return set_device_state(name, action)
 
 def _get_new_device_state(device: DeviceConfig, action: PowerAction) -> PowerState:
-    match device.type:
-        case DeviceType.KASA:
-            return kasa_util.control_kasa_device(device, action)
-        case DeviceType.LIFX:
-            return lifx_util.control_lifx_device(device, action)
-        case _:
-            return device.power_state
+    try:
+        match device.type:
+            case DeviceType.KASA:
+                return kasa_util.control_kasa_device(device, action)
+            case DeviceType.LIFX:
+                return lifx_util.control_lifx_device(device, action)
+            case _:
+                return device.power_state
+    except Exception as e:
+        LOGGER.error(f"Error setting state for device '{device.name}': {e}")
+        return device.power_state
 
 def set_device_state(name: str, action: PowerAction):
     device = device_config_service.get_device_config(name)
