@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Response, status
 from app.services import device_config_service
 
-router = APIRouter(prefix="/config", tags=["Device Config"])
+router = APIRouter(prefix="/device", tags=["Device Config"])
 
 @router.get("/read")
 def read_all_devices():
