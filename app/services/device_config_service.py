@@ -31,7 +31,7 @@ def update_device_name(name: str, new_name: str):
             kasa_util.update_kasa_device_name(device, new_name)
         case DeviceType.LIFX:
             lifx_util.update_lifx_device_name(device, new_name)
-        case DeviceType.LED_STRIP:
+        case DeviceType.OTHER:
             pass
 
     # deleting since this is changing the primary key
