@@ -11,7 +11,7 @@ def discover_lifx() -> List[DeviceConfig]:
     redis_client.set_all_models(Namespace.DEVICE_CONFIG, lifx_devices, "name")
     return lifx_devices
 
-def discover_kasa() -> List[DeviceConfig]:
-    kasa_devices = kasa_util.discover_kasa_devices()
+async def discover_kasa() -> List[DeviceConfig]:
+    kasa_devices = await kasa_util.discover_kasa_devices()
     redis_client.set_all_models(Namespace.DEVICE_CONFIG, kasa_devices, "name")
     return kasa_devices
