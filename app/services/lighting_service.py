@@ -5,7 +5,7 @@ from app.utils.logger import LOGGER
 from app.services import device_service
 from typing import List, Optional
 
-def set_state(name: str, action: PowerAction):
+async def set_state(name: str, action: PowerAction):
     if name == "home":
         return set_home_state(action)
 
@@ -15,7 +15,7 @@ def set_state(name: str, action: PowerAction):
     
     return set_device_state(name, action)
 
-def _get_new_device_state(device: DeviceConfig, action: PowerAction) -> PowerState:
+async def _get_new_device_state(device: DeviceConfig, action: PowerAction) -> PowerState:
     try:
         match device.type:
             case DeviceType.KASA:
@@ -27,15 +27,6 @@ def _get_new_device_state(device: DeviceConfig, action: PowerAction) -> PowerSta
     except Exception as e:
         LOGGER.error(f"Error setting state for device '{device.name}': {e}")
         return device.power_state
-
-def set_device_state(name: str, action: PowerAction):
-    device = device_service.get_device_config(name)
-
-    new_state = _get_new_device_state(device, action)
-
-    device.power_state = new_state
-    device_service.upsert_device(device)
-    return device
 
 def _get_power_state_of_devices(devices: List[DeviceConfig]) -> PowerState:
     for device in devices:
@@ -56,7 +47,12 @@ def get_power_state_of_home(devices: Optional[List[DeviceConfig]] = None) -> Pow
     
     return _get_power_state_of_devices(devices)
 
-def set_room_state(room: Room, action: PowerAction):
+async def set_device_state(name: str, action: PowerAction):
+    device = device_service.get_device_config(name)
+
+    return _perform_power_action([device], action)
+
+async def set_room_state(room: Room, action: PowerAction):
     devices = device_service.get_devices_of_room(room)
 
     if action == PowerAction.TOGGLE:
@@ -64,7 +60,7 @@ def set_room_state(room: Room, action: PowerAction):
 
     return _perform_power_action(devices, action)
 
-def set_home_state(action: PowerAction):
+async def set_home_state(action: PowerAction):
     devices = device_service.read_all_devices()
 
     if action == PowerAction.TOGGLE:
@@ -72,11 +68,11 @@ def set_home_state(action: PowerAction):
 
     return _perform_power_action(devices, action)
 
-def _perform_power_action(devices: List[DeviceConfig], action: PowerAction):
+async def _perform_power_action(devices: List[DeviceConfig], action: PowerAction):
     updated_devices = []
 
     for device in devices:
-        new_state = _get_new_device_state(device, action)
+        new_state = await _get_new_device_state(device, action)
 
         device.power_state = new_state
         updated_devices.append(device)
