@@ -58,8 +58,3 @@ async def update_lifx_device_name(config: DeviceConfig, new_name: str) -> str:
     device = _connect(config)
     await asyncio.to_thread(device.set_label, new_name)
     return new_name
-
-async def get_lifx_device_power_state(config: DeviceConfig) -> PowerState:
-    device = _connect(config)
-    power_state = await asyncio.to_thread(device.get_power)
-    return PowerState.ON if power_state else PowerState.OFF

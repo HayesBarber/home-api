@@ -54,7 +54,3 @@ async def update_kasa_device_name(config: DeviceConfig, new_name: str) -> str:
     device = await _connect(config)
     await device.set_alias(new_name)
     return new_name
-
-async def get_kasa_device_power_state(config: DeviceConfig) -> PowerState:
-    device = await _connect(config)
-    return PowerState.ON if device.is_on else PowerState.OFF
