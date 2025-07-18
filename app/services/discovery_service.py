@@ -4,7 +4,7 @@ from typing import List
 from app.models.device import DeviceConfig
 from app.utils import kasa_util, lifx_util
 from app.utils.logger import LOGGER
-from app.services import device_config_service
+from app.services import device_service
 
 def discover_lifx() -> List[DeviceConfig]:
     lifx_devices = lifx_util.discover_lifx_devices()
@@ -26,7 +26,7 @@ def trigger_discovery():
     }
 
 def check_for_offline_devices():
-    devices = device_config_service.read_all_devices()
+    devices = device_service.read_all_devices()
     stale = get_stale_devices(devices)
 
     for device in stale:
