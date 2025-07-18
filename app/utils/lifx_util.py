@@ -1,3 +1,4 @@
+import asyncio
 from lifxlan import LifxLAN, Light
 from app.models.device import DeviceConfig, DeviceType, PowerState, PowerAction
 from typing import List
@@ -6,21 +7,22 @@ from app.utils.logger import LOGGER
 
 _lifx = LifxLAN()
 
-def discover_lifx_devices() -> List[DeviceConfig]:
+async def discover_lifx_devices() -> List[DeviceConfig]:
     LOGGER.info("Discovering Lifx devices...")
-    devices: List[Light] = _lifx.get_lights()
+    devices: List[Light] = await asyncio.to_thread(_lifx.get_lights)
     results = []
 
     for d in devices:
         LOGGER.info(f"Found {d.get_label()} at {d.get_ip_addr()}")
         room, cleaned_name = device_service.extract_room_name(d.get_label())
+        power_state = await asyncio.to_thread(d.get_power)
         results.append(
             DeviceConfig(
                 name=cleaned_name,
                 ip=d.get_ip_addr(),
                 mac=d.get_mac_addr(),
                 type=DeviceType.LIFX,
-                power_state=PowerState.ON if d.get_power() else PowerState.OFF,
+                power_state=PowerState.ON if power_state else PowerState.OFF,
                 room=room
             )
         )
@@ -34,28 +36,30 @@ def _connect(config: DeviceConfig) -> Light:
     light = Light(config.mac, str(config.ip)) 
     return light
 
-def control_lifx_device(config: DeviceConfig, action: PowerAction) -> PowerState:
+async def control_lifx_device(config: DeviceConfig, action: PowerAction) -> PowerState:
     device = _connect(config)
     match action:
         case PowerAction.ON:
-            device.set_power("on")
+            await asyncio.to_thread(device.set_power, "on")
             return PowerState.ON
         case PowerAction.OFF:
-            device.set_power("off")
+            await asyncio.to_thread(device.set_power, "off")
             return PowerState.OFF
         case PowerAction.TOGGLE:
-            if device.get_power():
-                device.set_power("off")
+            current_power = await asyncio.to_thread(device.get_power)
+            if current_power:
+                await asyncio.to_thread(device.set_power, "off")
                 return PowerState.OFF
             else:
-                device.set_power("on")
+                await asyncio.to_thread(device.set_power, "on")
                 return PowerState.ON
 
-def update_lifx_device_name(config: DeviceConfig, new_name: str) -> str:
+async def update_lifx_device_name(config: DeviceConfig, new_name: str) -> str:
     device = _connect(config)
-    device.set_label(new_name)
+    await asyncio.to_thread(device.set_label, new_name)
     return new_name
 
-def get_lifx_device_power_state(config: DeviceConfig) -> PowerState:
+async def get_lifx_device_power_state(config: DeviceConfig) -> PowerState:
     device = _connect(config)
-    return PowerState.ON if device.get_power() else PowerState.OFF
+    power_state = await asyncio.to_thread(device.get_power)
+    return PowerState.ON if power_state else PowerState.OFF
