@@ -23,14 +23,14 @@ def get_devices_of_room(room: Room) -> List[DeviceConfig]:
     all_devices = read_all_devices()
     return [device for device in all_devices if device.room == room]
 
-def update_device_name(name: str, new_name: str):
+async def update_device_name(name: str, new_name: str):
     device = get_device_config(name)
 
     match device.type:
         case DeviceType.KASA:
-            kasa_util.update_kasa_device_name(device, new_name)
+            await kasa_util.update_kasa_device_name(device, new_name)
         case DeviceType.LIFX:
-            lifx_util.update_lifx_device_name(device, new_name)
+            await lifx_util.update_lifx_device_name(device, new_name)
         case DeviceType.OTHER:
             pass
 
