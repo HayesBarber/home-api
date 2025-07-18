@@ -2,7 +2,7 @@ from app.models.device import PowerAction, DeviceType, Room, DeviceConfig, Power
 from app.utils import kasa_util, lifx_util
 from app.utils.redis_client import redis_client, Namespace
 from app.utils.logger import LOGGER
-from app.services import device_config_service
+from app.services import device_service
 from typing import List, Optional
 
 def set_state(name: str, action: PowerAction):
@@ -29,12 +29,12 @@ def _get_new_device_state(device: DeviceConfig, action: PowerAction) -> PowerSta
         return device.power_state
 
 def set_device_state(name: str, action: PowerAction):
-    device = device_config_service.get_device_config(name)
+    device = device_service.get_device_config(name)
 
     new_state = _get_new_device_state(device, action)
 
     device.power_state = new_state
-    device_config_service.upsert_device(device)
+    device_service.upsert_device(device)
     return device
 
 def _get_power_state_of_devices(devices: List[DeviceConfig]) -> PowerState:
@@ -46,18 +46,18 @@ def _get_power_state_of_devices(devices: List[DeviceConfig]) -> PowerState:
 
 def get_power_state_of_room(room: Room, devices: Optional[List[DeviceConfig]] = None) -> PowerState:
     if devices is None:
-        devices = device_config_service.get_devices_of_room(room)
+        devices = device_service.get_devices_of_room(room)
 
     return _get_power_state_of_devices(devices)
 
 def get_power_state_of_home(devices: Optional[List[DeviceConfig]] = None) -> PowerState:
     if devices is None:
-        devices = device_config_service.read_all_devices()
+        devices = device_service.read_all_devices()
     
     return _get_power_state_of_devices(devices)
 
 def set_room_state(room: Room, action: PowerAction):
-    devices = device_config_service.get_devices_of_room(room)
+    devices = device_service.get_devices_of_room(room)
 
     if action == PowerAction.TOGGLE:
         action = PowerAction.ON if get_power_state_of_room(room, devices) == PowerState.OFF else PowerAction.OFF
@@ -65,7 +65,7 @@ def set_room_state(room: Room, action: PowerAction):
     return _perform_power_action(devices, action)
 
 def set_home_state(action: PowerAction):
-    devices = device_config_service.read_all_devices()
+    devices = device_service.read_all_devices()
 
     if action == PowerAction.TOGGLE:
         action = PowerAction.ON if get_power_state_of_home(devices) == PowerState.OFF else PowerAction.OFF

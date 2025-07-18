@@ -1,7 +1,7 @@
 from lifxlan import LifxLAN, Light
 from app.models.device import DeviceConfig, DeviceType, PowerState, PowerAction
 from typing import List
-from app.services import device_config_service
+from app.services import device_service
 from app.utils.logger import LOGGER
 
 _lifx = LifxLAN()
@@ -13,7 +13,7 @@ def discover_lifx_devices() -> List[DeviceConfig]:
 
     for d in devices:
         LOGGER.info(f"Found {d.get_label()} at {d.get_ip_addr()}")
-        room, cleaned_name = device_config_service.extract_room_name(d.get_label())
+        room, cleaned_name = device_service.extract_room_name(d.get_label())
         results.append(
             DeviceConfig(
                 name=cleaned_name,

@@ -2,7 +2,7 @@ import asyncio
 from kasa import Discover, Device
 from app.models.device import DeviceConfig, DeviceType, PowerState, PowerAction
 from typing import List
-from app.services import device_config_service
+from app.services import device_service
 from app.utils.logger import LOGGER
 
 async def _discover_kasa_devices_async() -> List[DeviceConfig]:
@@ -13,7 +13,7 @@ async def _discover_kasa_devices_async() -> List[DeviceConfig]:
     for addr, dev in devices.items():
         await dev.update()
         LOGGER.info(f"Found {dev.alias} at {addr}")
-        room, cleaned_name = device_config_service.extract_room_name(dev.alias)
+        room, cleaned_name = device_service.extract_room_name(dev.alias)
         results.append(
             DeviceConfig(
                 name=cleaned_name,
