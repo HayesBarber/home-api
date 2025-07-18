@@ -15,25 +15,6 @@ async def set_state(name: str, action: PowerAction):
     
     return set_device_state(name, action)
 
-async def _get_new_device_state(device: DeviceConfig, action: PowerAction) -> PowerState:
-    try:
-        match device.type:
-            case DeviceType.KASA:
-                return kasa_util.control_kasa_device(device, action)
-            case DeviceType.LIFX:
-                return lifx_util.control_lifx_device(device, action)
-            case _:
-                return device.power_state
-    except Exception as e:
-        LOGGER.error(f"Error setting state for device '{device.name}': {e}")
-        return device.power_state
-
-def _get_power_state_of_devices(devices: List[DeviceConfig]) -> PowerState:
-    for device in devices:
-        if device.power_state == PowerState.ON:
-            return PowerState.ON
-    
-    return PowerState.OFF
 
 def get_power_state_of_room(room: Room, devices: Optional[List[DeviceConfig]] = None) -> PowerState:
     if devices is None:
@@ -79,3 +60,23 @@ async def _perform_power_action(devices: List[DeviceConfig], action: PowerAction
 
     redis_client.set_all_models(Namespace.DEVICE_CONFIG, updated_devices, "name")
     return updated_devices
+
+async def _get_new_device_state(device: DeviceConfig, action: PowerAction) -> PowerState:
+    try:
+        match device.type:
+            case DeviceType.KASA:
+                return kasa_util.control_kasa_device(device, action)
+            case DeviceType.LIFX:
+                return lifx_util.control_lifx_device(device, action)
+            case _:
+                return device.power_state
+    except Exception as e:
+        LOGGER.error(f"Error setting state for device '{device.name}': {e}")
+        return device.power_state
+
+def _get_power_state_of_devices(devices: List[DeviceConfig]) -> PowerState:
+    for device in devices:
+        if device.power_state == PowerState.ON:
+            return PowerState.ON
+    
+    return PowerState.OFF
