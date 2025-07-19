@@ -1,6 +1,6 @@
 import asyncio
 from app.models.device import PowerAction, DeviceType, Room, DeviceConfig, PowerState, get_room_from_string
-from app.utils import kasa_util, lifx_util
+from app.utils import kasa_util, lifx_util, led_strip_util
 from app.utils.redis_client import redis_client, Namespace
 from app.utils.logger import LOGGER
 from app.services import device_service
@@ -68,6 +68,8 @@ async def _get_new_device_state(device: DeviceConfig, action: PowerAction) -> Po
                 return await kasa_util.control_kasa_device(device, action)
             case DeviceType.LIFX:
                 return await lifx_util.control_lifx_device(device, action)
+            case DeviceType.LED_STRIP:
+                return await led_strip_util.control_led_strip(device, action)
             case _:
                 return device.power_state
     except Exception as e:

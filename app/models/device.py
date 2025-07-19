@@ -19,7 +19,7 @@ def get_room_from_string(name: str) -> Optional[Room]:
 class DeviceType(str, Enum):
     KASA = "kasa"
     LIFX = "lifx"
-    OTHER = "other"
+    LED_STRIP = "led_strip"
 
 class PowerState(str, Enum):
     ON = "on"
