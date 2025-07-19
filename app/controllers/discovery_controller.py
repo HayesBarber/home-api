@@ -10,9 +10,9 @@ def check_in_device(config: DeviceConfig):
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 @router.post("/discover/kasa")
-def discover_kasa():
-    return discovery_service.discover_kasa()
+async def discover_kasa():
+    return await discovery_service.discover_kasa()
 
 @router.post("/discover/lifx")
-def discover_lifx():
-    return discovery_service.discover_lifx()
+async def discover_lifx():
+    return await discovery_service.discover_lifx()
