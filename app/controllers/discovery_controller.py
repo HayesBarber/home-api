@@ -16,3 +16,7 @@ async def discover_kasa():
 @router.post("/discover/lifx")
 async def discover_lifx():
     return await discovery_service.discover_lifx()
+
+@router.post("/discover/esp")
+async def discover_esp():
+    return await discovery_service.discover_esp()
