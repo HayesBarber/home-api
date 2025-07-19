@@ -14,4 +14,4 @@ def delete_device(device_name: str):
 
 @router.patch("/update-name")
 async def update_device_name(old_name: str, new_name: str):
-    return device_service.update_device_name(old_name, new_name)
+    return await device_service.update_device_name(old_name, new_name)

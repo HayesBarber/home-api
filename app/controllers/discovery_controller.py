@@ -11,8 +11,8 @@ def check_in_device(config: DeviceConfig):
 
 @router.post("/discover/kasa")
 async def discover_kasa():
-    return discovery_service.discover_kasa()
+    return await discovery_service.discover_kasa()
 
 @router.post("/discover/lifx")
 async def discover_lifx():
-    return discovery_service.discover_lifx()
+    return await discovery_service.discover_lifx()

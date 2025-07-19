@@ -6,4 +6,4 @@ router = APIRouter(prefix="/lighting", tags=["Lighting"])
 
 @router.get("/{name}/{action}")
 async def set_state(name: str, action: PowerAction):
-    return lighting_service.set_state(name, action)
+    return await lighting_service.set_state(name, action)
