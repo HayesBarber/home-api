@@ -31,7 +31,7 @@ async def update_device_name(name: str, new_name: str):
             await kasa_util.update_kasa_device_name(device, new_name)
         case DeviceType.LIFX:
             await lifx_util.update_lifx_device_name(device, new_name)
-        case DeviceType.OTHER:
+        case _:
             pass
 
     # deleting since this is changing the primary key
