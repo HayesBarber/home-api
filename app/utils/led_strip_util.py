@@ -3,7 +3,7 @@ from app.models.device import DeviceConfig, PowerState, PowerAction
 from app.utils.logger import LOGGER
 
 async def control_led_strip(config: DeviceConfig, action: PowerAction) -> PowerState:
-    url = f"http://{config.ip}/"
+    url = f"http://{config.ip}/message"
     json_payload = {"action": action.value}
 
     try:
