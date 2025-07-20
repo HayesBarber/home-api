@@ -5,7 +5,8 @@ def save_theme(req: CreateThemeRequest) -> None:
     redis_client.set(Namespace.THEME, req.name, req.colors)
 
 def get_all_themes() -> GetThemesResponse:
-    pass
+    themes = redis_client.get_all(Namespace.THEME)
+    return GetThemesResponse(themes=themes)
 
 def delete_theme(req: DeleteThemeRequest) -> None:
-    pass
+    redis_client.delete(Namespace.THEME, req.name)

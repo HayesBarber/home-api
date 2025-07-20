@@ -14,4 +14,4 @@ class GetThemesResponse(BaseModel):
 class DeleteThemeRequest(BaseModel):
     name: str
 
-THEME_CAPABLE_DEVICES = {DeviceType.LED_STRIP}
+THEME_CAPABLE_DEVICES = { DeviceType.LED_STRIP }
