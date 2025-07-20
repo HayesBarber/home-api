@@ -3,7 +3,7 @@ from app.models import ApplyThemeRequest, CreateThemeRequest, DeleteThemeRequest
 from app.services import themes_service
 from typing import List
 
-router = APIRouter(prefix="/theme", tags=["Themes"])
+router = APIRouter(prefix="/themes", tags=["Themes"])
 
 @router.post("/apply")
 async def apply_theme(req: ApplyThemeRequest) -> List[DeviceConfig]:
