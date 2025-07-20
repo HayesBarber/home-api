@@ -4,6 +4,6 @@ from app.services import themes_service
 
 router = APIRouter(prefix="/theme", tags=["Themes"])
 
-@router.post("/theme")
+@router.post("/apply")
 async def apply_theme(req: ApplyThemeRequest):
     return await themes_service.set_theme(req)
