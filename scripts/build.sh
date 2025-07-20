@@ -2,6 +2,9 @@
 
 set -e
 
+echo "Running ruff check..."
+ruff check .
+
 source .env
 TAR_PATH=./build/${IMAGE_NAME}.tar
 
