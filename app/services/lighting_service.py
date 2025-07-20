@@ -1,5 +1,5 @@
 import asyncio
-from app.models import PowerAction, DeviceType, Room, DeviceConfig, PowerState, get_room_from_string, THEME_CAPABLE_DEVICES, Theme
+from app.models import PowerAction, DeviceType, Room, DeviceConfig, PowerState, get_room_from_string, THEME_CAPABLE_DEVICES, ApplyThemeRequest
 from app.utils import kasa_util, lifx_util, led_strip_util
 from app.utils.redis_client import redis_client, Namespace
 from app.utils.logger import LOGGER
@@ -50,7 +50,7 @@ async def set_home_state(action: PowerAction):
 
     return await _perform_power_action(devices, action)
 
-async def set_theme(theme: Theme):
+async def set_theme(theme: ApplyThemeRequest):
     devices = device_service.read_all_devices()
 
     async def _apply_theme(device: DeviceConfig) -> tuple[DeviceConfig, PowerState]:

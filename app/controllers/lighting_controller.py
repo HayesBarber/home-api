@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.services import lighting_service
-from app.models import PowerAction, Theme
+from app.models import PowerAction, ApplyThemeRequest
 
 router = APIRouter(prefix="/lighting", tags=["Lighting"])
 
@@ -9,5 +9,5 @@ async def set_state(name: str, action: PowerAction):
     return await lighting_service.set_state(name, action)
 
 @router.post("/theme")
-async def apply_theme(req: Theme):
+async def apply_theme(req: ApplyThemeRequest):
     return await lighting_service.set_theme(req)
