@@ -1,6 +1,6 @@
 from app.utils.redis_client import redis_client, Namespace
 from app.utils import kasa_util, lifx_util
-from app.models.device import DeviceConfig, DeviceType, Room
+from app.models import DeviceConfig, DeviceType, Room
 from typing import List
 
 def upsert_device(device_config: DeviceConfig):

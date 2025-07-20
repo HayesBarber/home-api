@@ -1,6 +1,6 @@
 from app.utils.redis_client import redis_client, Namespace
 from typing import List
-from app.models.device import DeviceConfig
+from app.models import DeviceConfig
 from app.utils import kasa_util, lifx_util, esp_util
 
 async def discover_lifx() -> List[DeviceConfig]:

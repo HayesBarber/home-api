@@ -1,5 +1,5 @@
 import httpx
-from app.models.device import DeviceConfig, PowerState, PowerAction
+from app.models import DeviceConfig, PowerState, PowerAction
 from app.utils.logger import LOGGER
 
 async def _send_led_command(config: DeviceConfig, payload: dict, log_action: str) -> PowerState:

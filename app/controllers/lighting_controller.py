@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from app.services import lighting_service
-from app.models.device import PowerAction, Theme
+from app.models import PowerAction, Theme
 
 router = APIRouter(prefix="/lighting", tags=["Lighting"])
 

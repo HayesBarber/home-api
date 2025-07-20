@@ -1,39 +1,11 @@
-from enum import Enum
 from pydantic import BaseModel, field_validator
 from ipaddress import IPv4Address
 from typing import Optional
 from datetime import datetime
-from typing import Optional
 
-class Room(str, Enum):
-    BEDROOM = "bedroom"
-    LIVING_ROOM = "living_room"
-    UPSTAIRS = "upstairs"
-
-def get_room_from_string(name: str) -> Optional[Room]:
-    for room in Room:
-        if room.value == name:
-            return room
-    return None
-
-class DeviceType(str, Enum):
-    KASA = "kasa"
-    LIFX = "lifx"
-    LED_STRIP = "led_strip"
-
-class Theme(BaseModel):
-    colors: str
-
-THEME_CAPABLE_DEVICES = {DeviceType.LED_STRIP}
-
-class PowerState(str, Enum):
-    ON = "on"
-    OFF = "off"
-
-class PowerAction(str, Enum):
-    ON = "on"
-    OFF = "off"
-    TOGGLE = "toggle"
+from app.models.room import Room
+from app.models.device_type import DeviceType
+from app.models.power_state import PowerState
 
 class DeviceConfig(BaseModel):
     name: str
