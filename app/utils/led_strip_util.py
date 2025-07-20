@@ -23,6 +23,6 @@ async def control_led_strip(config: DeviceConfig, action: PowerAction) -> PowerS
     payload = {"action": action.value}
     return await _send_led_command(config, payload, action.value)
 
-async def set_led_theme(config: DeviceConfig) -> PowerState:
-    payload = {"action": "fill", "colors": "todo"}
+async def set_led_theme(config: DeviceConfig, colors: str) -> PowerState:
+    payload = {"action": "fill", "colors": colors}
     return await _send_led_command(config, payload, "fill")
