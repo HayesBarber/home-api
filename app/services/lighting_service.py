@@ -1,5 +1,5 @@
 import asyncio
-from app.models.device import PowerAction, DeviceType, Room, DeviceConfig, PowerState, get_room_from_string, THEME_CAPABLE_DEVICES
+from app.models.device import PowerAction, DeviceType, Room, DeviceConfig, PowerState, get_room_from_string, THEME_CAPABLE_DEVICES, Theme
 from app.utils import kasa_util, lifx_util, led_strip_util
 from app.utils.redis_client import redis_client, Namespace
 from app.utils.logger import LOGGER
@@ -50,13 +50,13 @@ async def set_home_state(action: PowerAction):
 
     return await _perform_power_action(devices, action)
 
-async def set_theme(colors: str):
+async def set_theme(theme: Theme):
     devices = device_service.read_all_devices()
 
     async def _apply_theme(device: DeviceConfig) -> tuple[DeviceConfig, PowerState]:
         match device.type:
             case DeviceType.LED_STRIP:
-                new_state = await led_strip_util.set_led_theme(device, colors)
+                new_state = await led_strip_util.set_led_theme(device, theme.colors)
             case _:
                 new_state = device.power_state
         return device, new_state

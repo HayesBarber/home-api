@@ -21,6 +21,9 @@ class DeviceType(str, Enum):
     LIFX = "lifx"
     LED_STRIP = "led_strip"
 
+class Theme(BaseModel):
+    colors: str
+
 THEME_CAPABLE_DEVICES = {DeviceType.LED_STRIP}
 
 class PowerState(str, Enum):
