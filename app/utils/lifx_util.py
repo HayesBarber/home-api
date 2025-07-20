@@ -1,6 +1,6 @@
 import asyncio
 from lifxlan import LifxLAN, Light
-from app.models.device import DeviceConfig, DeviceType, PowerState, PowerAction
+from app.models import DeviceConfig, DeviceType, PowerState, PowerAction
 from typing import List
 from app.services import device_service
 from app.utils.logger import LOGGER

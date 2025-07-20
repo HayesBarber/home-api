@@ -1,5 +1,5 @@
 import asyncio
-from app.models.device import PowerAction, DeviceType, Room, DeviceConfig, PowerState, get_room_from_string, THEME_CAPABLE_DEVICES, Theme
+from app.models import PowerAction, DeviceType, Room, DeviceConfig, PowerState, get_room_from_string, THEME_CAPABLE_DEVICES, Theme
 from app.utils import kasa_util, lifx_util, led_strip_util
 from app.utils.redis_client import redis_client, Namespace
 from app.utils.logger import LOGGER

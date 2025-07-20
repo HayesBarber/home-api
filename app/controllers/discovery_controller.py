@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Response, status
 from app.services import device_service, discovery_service
-from app.models.device import DeviceConfig
+from app.models import DeviceConfig
 
 router = APIRouter(prefix="/discovery", tags=["Discovery"])
 
