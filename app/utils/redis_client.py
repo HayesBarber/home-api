@@ -10,6 +10,7 @@ T = TypeVar("T", bound=BaseModel)
 class Namespace(str, Enum):
     DEVICE_CONFIG = "device_config"
     THEME = "theme"
+    USERS = "users"
 
 def _make_key(namespace: Namespace, key: str) -> str:
     return f"{namespace.value}:{key.strip()}"
