@@ -11,14 +11,8 @@ class Namespace(str, Enum):
     DEVICE_CONFIG = "device_config"
     THEME = "theme"
 
-class TTL(int, Enum):
-    API_KEYS = 5 * 60
-
 def _make_key(namespace: Namespace, key: str) -> str:
     return f"{namespace.value}:{key.strip()}"
-
-def _get_ttl(ns: Namespace) -> Optional[int]:
-    return TTL[ns.name].value if ns.name in TTL.__members__ else None
 
 class RedisClient:
     def __init__(self, redis_url: Optional[str] = None):
@@ -32,7 +26,7 @@ class RedisClient:
     def set(self, namespace: Namespace, key: str, value: Any):
         val = value if isinstance(value, (str, bytes)) else str(value)
         val = val.strip()
-        self._redis.set(_make_key(namespace, key), val, ex=_get_ttl(namespace))
+        self._redis.set(_make_key(namespace, key), val)
 
     def delete(self, namespace: Namespace, key: str):
         self._redis.delete(_make_key(namespace, key))
@@ -90,11 +84,8 @@ class RedisClient:
             raise AttributeError(f"[Redis] key_field '{key_field}' not found on model.") from e
 
         pipe = self._redis.pipeline()
-        ttl = _get_ttl(namespace)
         for key, val in data.items():
             pipe.set(key, val)
-            if ttl:
-                pipe.expire(key, ttl)
         pipe.execute()
 
         return len(data)
