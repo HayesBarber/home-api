@@ -4,6 +4,7 @@ from app.models.theme import ApplyThemeRequest, CreateThemeRequest, GetThemesRes
 from app.models.power_state import PowerState
 from app.models.power_action import PowerAction
 from app.models.device import DeviceConfig
+from app.models.user import CreateUserRequest, DeleteUserRequest
 
 __all__ = [
     "Room",
@@ -17,4 +18,6 @@ __all__ = [
     "PowerState",
     "PowerAction",
     "DeviceConfig",
+    "CreateUserRequest",
+    "DeleteUserRequest",
 ]
