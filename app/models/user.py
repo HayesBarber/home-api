@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import List
 
 class CreateUserRequest(BaseModel):
     name: str
@@ -6,3 +7,6 @@ class CreateUserRequest(BaseModel):
 
 class DeleteUserRequest(BaseModel):
     name: str
+
+class GetUsersResponse(BaseModel):
+    users: List[str]
