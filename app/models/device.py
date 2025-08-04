@@ -22,17 +22,17 @@ class DeviceConfig(BaseModel):
     @field_validator("last_updated", mode="before")
     @classmethod
     def set_last_updated(cls, v):
-        if v is None:
-            return datetime.now().isoformat()
         if isinstance(v, datetime):
             return v.isoformat()
-        return v
+        if v is None:
+            return datetime.now().isoformat()
+        return str(v)
 
 class DeviceReadResponse(BaseModel):
     devices: List[DeviceConfig]
 
 class DeviceDiscoveryResponse(BaseModel):
     devices: List[DeviceConfig]
-    
+
 class EffectedDevicesResponse(BaseModel):
     devices: List[DeviceConfig]
