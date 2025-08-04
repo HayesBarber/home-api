@@ -17,7 +17,7 @@ def get_all_themes() -> GetThemesResponse:
     return GetThemesResponse(themes=themes)
 
 async def set_theme(req: ApplyThemeRequest) -> EffectedDevicesResponse:
-    devices = device_service.read_all_devices()
+    devices = device_service.read_all_devices().devices
 
     async def _apply_theme(device: DeviceConfig) -> tuple[DeviceConfig, PowerState]:
         match device.type:
@@ -35,5 +35,5 @@ async def set_theme(req: ApplyThemeRequest) -> EffectedDevicesResponse:
 
     redis_client.set_all_models(Namespace.DEVICE_CONFIG, devices, "name")
     return EffectedDevicesResponse(
-        devices=devices.devices
+        devices=devices
     )

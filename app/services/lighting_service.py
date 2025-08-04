@@ -25,7 +25,7 @@ def get_power_state_of_room(room: Room, devices: Optional[List[DeviceConfig]] = 
 
 def get_power_state_of_home(devices: Optional[List[DeviceConfig]] = None) -> PowerState:
     if devices is None:
-        devices = device_service.read_all_devices()
+        devices = device_service.read_all_devices().devices
     
     return _get_power_state_of_devices(devices)
 
@@ -43,7 +43,7 @@ async def set_room_state(room: Room, action: PowerAction):
     return await _perform_power_action(devices, action)
 
 async def set_home_state(action: PowerAction):
-    devices = device_service.read_all_devices()
+    devices = device_service.read_all_devices().devices
 
     if action == PowerAction.TOGGLE:
         action = PowerAction.ON if get_power_state_of_home(devices) == PowerState.OFF else PowerAction.OFF
