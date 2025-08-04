@@ -16,6 +16,5 @@ async def discover_kasa() -> DeviceDiscoveryResponse:
         devices=kasa_devices
     )
 
-async def discover_esp(passcode: str, port: int) -> str:
+async def discover_esp(passcode: str, port: int) -> None:
     await esp_util.discover_esp_devices(passcode, port)
-    return "Broadcast sent"

@@ -17,6 +17,7 @@ async def discover_kasa():
 async def discover_lifx():
     return await discovery_service.discover_lifx()
 
-@router.post("/discover/esp")
+@router.post("/discover/esp", status_code=status.HTTP_204_NO_CONTENT)
 async def discover_esp(passcode: str, port: int):
-    return await discovery_service.discover_esp(passcode, port)
+    await discovery_service.discover_esp(passcode, port)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
