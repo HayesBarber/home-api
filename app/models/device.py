@@ -1,6 +1,6 @@
 from pydantic import BaseModel, field_validator
 from ipaddress import IPv4Address
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 from app.models import Room, DeviceType, PowerState
 
@@ -22,3 +22,6 @@ class DeviceConfig(BaseModel):
         if isinstance(v, datetime):
             return v.isoformat()
         return v
+
+class DeviceReadResponse(BaseModel):
+    devices: List[DeviceConfig]

@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Response, status
 from app.services import device_service
+from app.models import DeviceReadResponse
 
 router = APIRouter(prefix="/device", tags=["Device"])
 
-@router.get("/read")
+@router.get("/read", response_model=DeviceReadResponse)
 def read_all_devices():
     return device_service.read_all_devices()
 
