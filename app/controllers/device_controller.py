@@ -13,6 +13,7 @@ def delete_device(device_name: str):
     device_service.delete_devcie(device_name)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
-@router.patch("/update-name")
+@router.patch("/update-name", status_code=status.HTTP_204_NO_CONTENT)
 async def update_device_name(old_name: str, new_name: str):
-    return await device_service.update_device_name(old_name, new_name)
+    await device_service.update_device_name(old_name, new_name)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

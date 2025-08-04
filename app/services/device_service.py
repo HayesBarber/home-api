@@ -39,7 +39,6 @@ async def update_device_name(name: str, new_name: str):
 
     # deleting since this is changing the primary key
     delete_devcie(name)
-    return {"message": "Device will be updated in the system upon next discovery or check-in"}
 
 def extract_room_name(device_name: str) -> tuple[Room, str]:
     if "--bedroom--" in device_name:
