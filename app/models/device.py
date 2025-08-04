@@ -29,3 +29,5 @@ class DeviceReadResponse(BaseModel):
 class DeviceDiscoveryResponse(BaseModel):
     devices: List[DeviceConfig]
     
+class EffectedDevicesResponse(BaseModel):
+    devices: List[DeviceConfig]

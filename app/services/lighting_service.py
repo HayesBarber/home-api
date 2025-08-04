@@ -1,12 +1,12 @@
 import asyncio
-from app.models import PowerAction, DeviceType, Room, DeviceConfig, PowerState, get_room_from_string
+from app.models import PowerAction, EffectedDevicesResponse, DeviceType, Room, DeviceConfig, PowerState, get_room_from_string
 from app.utils import kasa_util, lifx_util, led_strip_util
 from app.utils.redis_client import redis_client, Namespace
 from app.utils.logger import LOGGER
 from app.services import device_service
 from typing import List, Optional
 
-async def set_state(name: str, action: PowerAction):
+async def set_state(name: str, action: PowerAction) -> EffectedDevicesResponse:
     if name == "home":
         return await set_home_state(action)
 
@@ -50,7 +50,7 @@ async def set_home_state(action: PowerAction):
 
     return await _perform_power_action(devices, action)
 
-async def _perform_power_action(devices: List[DeviceConfig], action: PowerAction):
+async def _perform_power_action(devices: List[DeviceConfig], action: PowerAction) -> EffectedDevicesResponse:
     new_states = await asyncio.gather(*[
         _get_new_device_state(device, action) for device in devices
     ])
@@ -59,7 +59,9 @@ async def _perform_power_action(devices: List[DeviceConfig], action: PowerAction
         device.power_state = new_state
 
     redis_client.set_all_models(Namespace.DEVICE_CONFIG, devices, "name")
-    return devices
+    return EffectedDevicesResponse(
+        devices=devices
+    )
 
 async def _get_new_device_state(device: DeviceConfig, action: PowerAction) -> PowerState:
     try:
