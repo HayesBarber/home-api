@@ -3,7 +3,7 @@ from app.models.device_type import DeviceType
 from app.models.theme import ApplyThemeRequest, CreateThemeRequest, GetThemesResponse, DeleteThemeRequest, THEME_CAPABLE_DEVICES
 from app.models.power_state import PowerState
 from app.models.power_action import PowerAction
-from app.models.device import DeviceConfig, DeviceReadResponse
+from app.models.device import DeviceConfig, DeviceReadResponse, DeviceDiscoveryResponse
 from app.models.user import CreateUserRequest, DeleteUserRequest, GetUsersResponse
 
 __all__ = [
@@ -19,6 +19,7 @@ __all__ = [
     "PowerAction",
     "DeviceConfig",
     "DeviceReadResponse",
+    "DeviceDiscoveryResponse",
     "CreateUserRequest",
     "DeleteUserRequest",
     "GetUsersResponse",
