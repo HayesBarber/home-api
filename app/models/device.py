@@ -2,10 +2,7 @@ from pydantic import BaseModel, field_validator
 from ipaddress import IPv4Address
 from typing import Optional
 from datetime import datetime
-
-from app.models.room import Room
-from app.models.device_type import DeviceType
-from app.models.power_state import PowerState
+from app.models import Room, DeviceType, PowerState
 
 class DeviceConfig(BaseModel):
     name: str
