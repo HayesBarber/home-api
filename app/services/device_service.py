@@ -1,14 +1,17 @@
 from app.utils.redis_client import redis_client, Namespace
 from app.utils import kasa_util, lifx_util
-from app.models import DeviceConfig, DeviceType, Room
+from app.models import DeviceConfig, DeviceType, Room, DeviceReadResponse
 from typing import List
 
 def upsert_device(device_config: DeviceConfig):
     redis_client.set_model(Namespace.DEVICE_CONFIG, device_config.name, device_config)
 
-def read_all_devices() -> List[DeviceConfig]:
+def read_all_devices() -> DeviceReadResponse:
     all_configs_dict = redis_client.get_all_models(Namespace.DEVICE_CONFIG, DeviceConfig)
-    return list(all_configs_dict.values())
+    devices = list(all_configs_dict.values())
+    return DeviceReadResponse(
+        devices=devices
+    )
 
 def delete_devcie(name: str):
     redis_client.delete(Namespace.DEVICE_CONFIG, name)
@@ -36,7 +39,6 @@ async def update_device_name(name: str, new_name: str):
 
     # deleting since this is changing the primary key
     delete_devcie(name)
-    return {"message": "Device will be updated in the system upon next discovery or check-in"}
 
 def extract_room_name(device_name: str) -> tuple[Room, str]:
     if "--bedroom--" in device_name:
