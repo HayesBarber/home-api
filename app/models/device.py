@@ -12,7 +12,12 @@ class DeviceConfig(BaseModel):
     power_state: PowerState
     last_updated: Optional[str] = None
     is_offline: bool = False
-    room: Room = Room.LIVING_ROOM
+    room: Optional[Room] = None
+
+    @field_validator("room", mode="before")
+    @classmethod
+    def set_default_room(cls, v):
+        return v or Room.LIVING_ROOM
 
     @field_validator("last_updated", mode="before")
     @classmethod
