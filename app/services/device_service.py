@@ -23,7 +23,7 @@ def get_device_config(name: str) -> DeviceConfig:
     return config
 
 def get_devices_of_room(room: Room) -> List[DeviceConfig]:
-    all_devices = read_all_devices()
+    all_devices = read_all_devices().devices
     return [device for device in all_devices if device.room == room]
 
 async def update_device_name(name: str, new_name: str):
