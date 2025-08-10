@@ -47,7 +47,7 @@ def extract_room_name(device_name: str) -> tuple[str, str]:
         second_index = device_name.find("--", first_index + 2)
         if second_index != -1:
             room = device_name[first_index + 2:second_index]
-            stripped_name = (device_name[:first_index] + device_name[second_index + 2:]).strip()
+            stripped_name = device_name[second_index + 2:].strip()
             return room, stripped_name
     room = settings.default_room
     stripped_name = device_name.strip()
