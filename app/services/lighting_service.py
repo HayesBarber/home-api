@@ -1,5 +1,5 @@
 import asyncio
-from app.models import PowerAction, EffectedDevicesResponse, DeviceType, Room, DeviceConfig, PowerState, get_room_from_string
+from app.models import PowerAction, EffectedDevicesResponse, DeviceType, DeviceConfig, PowerState, get_room_from_string
 from app.utils import kasa_util, lifx_util, led_strip_util
 from app.utils.redis_client import redis_client, Namespace
 from app.utils.logger import LOGGER
@@ -17,7 +17,7 @@ async def set_state(name: str, action: PowerAction) -> EffectedDevicesResponse:
     return await set_device_state(name, action)
 
 
-def get_power_state_of_room(room: Room, devices: Optional[List[DeviceConfig]] = None) -> PowerState:
+def get_power_state_of_room(room: str, devices: Optional[List[DeviceConfig]] = None) -> PowerState:
     if devices is None:
         devices = device_service.get_devices_of_room(room)
 
@@ -34,7 +34,7 @@ async def set_device_state(name: str, action: PowerAction):
 
     return await _perform_power_action([device], action)
 
-async def set_room_state(room: Room, action: PowerAction):
+async def set_room_state(room: str, action: PowerAction):
     devices = device_service.get_devices_of_room(room)
 
     if action == PowerAction.TOGGLE:
