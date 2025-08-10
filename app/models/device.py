@@ -18,7 +18,9 @@ class DeviceConfig(BaseModel):
     @field_validator("room", mode="before")
     @classmethod
     def set_default_room(cls, v):
-        return v or settings.default_room
+        if not v or not str(v).strip():
+            return settings.default_room
+        return v
 
     @field_validator("last_updated", mode="before")
     @classmethod
