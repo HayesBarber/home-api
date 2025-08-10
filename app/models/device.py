@@ -13,7 +13,7 @@ class DeviceConfig(BaseModel):
     power_state: PowerState
     last_updated: Optional[str] = None
     is_offline: bool = False
-    room: Optional[str] = None
+    room: str = settings.default_room
 
     @field_validator("room", mode="before")
     @classmethod
