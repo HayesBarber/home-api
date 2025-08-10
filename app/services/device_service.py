@@ -1,7 +1,8 @@
 from app.utils.redis_client import redis_client, Namespace
 from app.utils import kasa_util, lifx_util
-from app.models import DeviceConfig, DeviceType, Room, DeviceReadResponse
+from app.models import DeviceConfig, DeviceType, DeviceReadResponse
 from typing import List
+from app.config import settings
 
 def upsert_device(device_config: DeviceConfig):
     redis_client.set_model(Namespace.DEVICE_CONFIG, device_config.name, device_config)
@@ -22,7 +23,7 @@ def get_device_config(name: str) -> DeviceConfig:
         raise KeyError(f"{name} config not found")
     return config
 
-def get_devices_of_room(room: Room) -> List[DeviceConfig]:
+def get_devices_of_room(room: str) -> List[DeviceConfig]:
     all_devices = read_all_devices().devices
     return [device for device in all_devices if device.room == room]
 
@@ -40,18 +41,14 @@ async def update_device_name(name: str, new_name: str):
     # deleting since this is changing the primary key
     delete_devcie(name)
 
-def extract_room_name(device_name: str) -> tuple[Room, str]:
-    if "--bedroom--" in device_name:
-        room = Room.BEDROOM
-        stripped_name = device_name.replace("--bedroom--", "", 1).strip()
-    elif "--living_room--" in device_name:
-        room = Room.LIVING_ROOM
-        stripped_name = device_name.replace("--living_room--", "", 1).strip()
-    elif "--upstairs--" in device_name:
-        room = Room.UPSTAIRS
-        stripped_name = device_name.replace("--upstairs--", "", 1).strip()
-    else:
-        room = Room.LIVING_ROOM
-        stripped_name = device_name.strip()
-
+def extract_room_name(device_name: str) -> tuple[str, str]:
+    first_index = device_name.find("--")
+    if first_index != -1:
+        second_index = device_name.find("--", first_index + 2)
+        if second_index != -1:
+            room = device_name[first_index + 2:second_index]
+            stripped_name = (device_name[:first_index] + device_name[second_index + 2:]).strip()
+            return room, stripped_name
+    room = settings.default_room
+    stripped_name = device_name.strip()
     return room, stripped_name
