@@ -2,7 +2,8 @@ from pydantic import BaseModel, field_validator
 from ipaddress import IPv4Address
 from typing import Optional, List
 from datetime import datetime
-from app.models import Room, DeviceType, PowerState
+from app.models import DeviceType, PowerState
+from app.config import settings
 
 class DeviceConfig(BaseModel):
     name: str
@@ -12,12 +13,12 @@ class DeviceConfig(BaseModel):
     power_state: PowerState
     last_updated: Optional[str] = None
     is_offline: bool = False
-    room: Optional[Room] = None
+    room: Optional[str] = None
 
     @field_validator("room", mode="before")
     @classmethod
     def set_default_room(cls, v):
-        return v or Room.LIVING_ROOM
+        return v or settings.default_room
 
     @field_validator("last_updated", mode="before")
     @classmethod
