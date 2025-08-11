@@ -3,6 +3,7 @@ from app.utils.redis_client import redis_client, Namespace
 import asyncio
 from app.services import device_service
 from app.utils import led_strip_util
+from typing import List
 
 def save_theme(req: CreateThemeRequest) -> GetThemesResponse:
     redis_client.set(Namespace.THEME, req.name, req.colors)
@@ -30,10 +31,13 @@ async def set_theme(req: ApplyThemeRequest) -> EffectedDevicesResponse:
     theme_devices = [device for device in devices if device.type in THEME_CAPABLE_DEVICES]
     results = await asyncio.gather(*[_apply_theme(device) for device in theme_devices])
 
+    effected_devices: List[DeviceConfig] = []
+
     for device, new_state in results:
         device.power_state = new_state
+        effected_devices.append(device)
 
-    redis_client.set_all_models(Namespace.DEVICE_CONFIG, devices, "name")
+    redis_client.set_all_models(Namespace.DEVICE_CONFIG, effected_devices, "name")
     return EffectedDevicesResponse(
-        devices=devices
+        devices=effected_devices
     )
