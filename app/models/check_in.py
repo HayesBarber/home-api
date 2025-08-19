@@ -1,4 +1,4 @@
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, model_validator, field_validator
 from typing import List, Optional
 from ipaddress import IPv4Address
 from app.models import DeviceType, PowerState
@@ -12,6 +12,16 @@ class CheckinRequest(BaseModel):
     power_state: Optional[PowerState]
     room: str = Optional[str]
     return_response: bool = False
+
+    @field_validator("return_response", mode="before")
+    @classmethod
+    def parse_return_response(cls, v):
+        if isinstance(v, str):
+            if v.lower() in {"true", "1", "yes"}:
+                return True
+            if v.lower() in {"false", "0", "no"}:
+                return False
+        return v
 
     @model_validator(mode="after")
     def validate_power_state(self):
