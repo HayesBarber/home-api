@@ -2,7 +2,6 @@ from pydantic import BaseModel, model_validator, field_validator
 from typing import List, Optional
 from ipaddress import IPv4Address
 from app.models import DeviceType, PowerState
-from app.config import settings
 
 class CheckinRequest(BaseModel):
     name: str
