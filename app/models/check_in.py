@@ -2,6 +2,7 @@ from pydantic import BaseModel, model_validator, field_validator
 from typing import List, Optional
 from ipaddress import IPv4Address
 from app.models import DeviceType, PowerState
+from app.config import settings
 
 class CheckinRequest(BaseModel):
     name: str
@@ -9,7 +10,7 @@ class CheckinRequest(BaseModel):
     mac: str
     type: DeviceType
     power_state: Optional[PowerState] = None
-    room: Optional[str] = None
+    room: str = settings.default_room
     return_response: bool = False
 
     @field_validator("return_response", mode="before")
@@ -24,11 +25,8 @@ class CheckinRequest(BaseModel):
 
     @model_validator(mode="after")
     def validate_power_state(self):
-        if self.type != DeviceType.INTERFACE:
-            if self.power_state is None:
+        if self.type != DeviceType.INTERFACE and self.power_state is None:
                 raise ValueError("power_state is required unless device type is 'interface'")
-            if self.room is None:
-                raise ValueError("room is required unless device type is 'interface'")
         return self
 
 class CheckinResponse(BaseModel):
