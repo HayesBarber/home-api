@@ -1,4 +1,4 @@
-from app.utils.redis_client import redis_client, Namespace
+from app.utils.redis_client import redis_client, Namespace, LOGGER
 from app.models import DeviceDiscoveryResponse, CheckinRequest, CheckinResponse, DeviceConfig, DeviceType, InterfaceDevice
 from app.utils import kasa_util, lifx_util, esp_util
 from app.services import device_service, themes_service
@@ -39,7 +39,7 @@ def build_checkin_response() -> CheckinResponse:
         theme_names.append(name)
         theme_colors.append(colors)
     
-    epoch_time_seconds = ""
+    epoch_time_seconds = LOGGER.epoch_seconds()
     extras = []
     
     return CheckinResponse(
