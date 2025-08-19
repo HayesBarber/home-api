@@ -1,9 +1,24 @@
 from app.utils.redis_client import redis_client, Namespace
-from app.models import DeviceDiscoveryResponse, CheckinRequest, CheckinResponse
+from app.models import DeviceDiscoveryResponse, CheckinRequest, CheckinResponse, DeviceConfig
 from app.utils import kasa_util, lifx_util, esp_util
+from app.services import device_service
 
 def checkin_device(req: CheckinRequest) -> CheckinResponse | None:
-    pass
+    device_config = DeviceConfig(
+        name=req.name,
+        ip=req.ip,
+        mac=req.mac,
+        type=req.type,
+        power_state=req.power_state,
+        room=req.room
+    )
+
+    device_service.upsert_device(device_config)
+
+    if not req.return_response:
+        return None
+    
+    return None
 
 async def discover_lifx() -> DeviceDiscoveryResponse:
     lifx_devices = await lifx_util.discover_lifx_devices()
