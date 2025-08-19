@@ -9,6 +9,7 @@ T = TypeVar("T", bound=BaseModel)
 
 class Namespace(str, Enum):
     DEVICE_CONFIG = "device_config"
+    INTERFACE_DEVICES = "interface_devices"
     THEME = "theme"
     USERS = "users"
 
