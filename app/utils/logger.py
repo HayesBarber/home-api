@@ -18,6 +18,11 @@ class LOGGER:
         return str(int(now.timestamp()))
 
     @classmethod
+    def current_date(cls) -> str:
+        now = cls._get_now()
+        return now.strftime("%a, %b %d")
+
+    @classmethod
     def log(cls, message: str, level: str = None) -> None:
         prefix = cls._format_prefix()
         level_str = f" [{level.upper()}]" if level else ""

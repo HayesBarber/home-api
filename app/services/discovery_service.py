@@ -40,7 +40,9 @@ def build_checkin_response() -> CheckinResponse:
         theme_colors.append(colors)
     
     epoch_time_seconds = LOGGER.epoch_seconds()
-    extras = []
+    extras = [
+        LOGGER.current_date()
+    ]
     
     return CheckinResponse(
         device_names=devices_names,
