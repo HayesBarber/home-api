@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 from typing import List, Optional
 from ipaddress import IPv4Address
 from app.models import DeviceType, PowerState
@@ -12,6 +12,12 @@ class CheckinRequest(BaseModel):
     power_state: Optional[PowerState]
     room: str = settings.default_room
     return_response: bool = False
+
+    @model_validator(mode="after")
+    def validate_power_state(self):
+        if self.type != "interface" and self.power_state is None:
+            raise ValueError("power_state is required unless device type is 'interface'")
+        return self
 
 class CheckinResponse(BaseModel):
     device_names: List[str]
