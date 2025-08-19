@@ -8,8 +8,8 @@ class CheckinRequest(BaseModel):
     ip: IPv4Address 
     mac: str
     type: DeviceType
-    power_state: Optional[PowerState]
-    room: str = Optional[str]
+    power_state: Optional[PowerState] = None
+    room: Optional[str] = None
     return_response: bool = False
 
     @field_validator("return_response", mode="before")
