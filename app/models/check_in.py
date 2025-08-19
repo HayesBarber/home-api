@@ -24,7 +24,7 @@ class CheckinRequest(BaseModel):
 
     @model_validator(mode="after")
     def validate_power_state(self):
-        if self.type != DeviceType.INTERFACE :
+        if self.type != DeviceType.INTERFACE:
             if self.power_state is None:
                 raise ValueError("power_state is required unless device type is 'interface'")
             if self.room is None:
