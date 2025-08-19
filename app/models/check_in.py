@@ -11,6 +11,11 @@ class CheckinRequest(BaseModel):
     type: DeviceType
     power_state: Optional[PowerState]
     room: str = settings.default_room
+    return_response: bool = False
 
 class CheckinResponse(BaseModel):
     device_names: List[str]
+    theme_names: List[str]
+    theme_colors: List[str]
+    epoch_time: str
+    current_date: str
