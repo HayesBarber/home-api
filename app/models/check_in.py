@@ -18,4 +18,4 @@ class CheckinResponse(BaseModel):
     theme_names: List[str]
     theme_colors: List[str]
     epoch_time: str
-    current_date: str
+    extras: List[str]

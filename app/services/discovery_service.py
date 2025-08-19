@@ -1,6 +1,9 @@
 from app.utils.redis_client import redis_client, Namespace
-from app.models import DeviceDiscoveryResponse
+from app.models import DeviceDiscoveryResponse, CheckinRequest, CheckinResponse
 from app.utils import kasa_util, lifx_util, esp_util
+
+def checkin_device(req: CheckinRequest) -> CheckinResponse | None:
+    pass
 
 async def discover_lifx() -> DeviceDiscoveryResponse:
     lifx_devices = await lifx_util.discover_lifx_devices()
