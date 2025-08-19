@@ -10,18 +10,21 @@ class CheckinRequest(BaseModel):
     mac: str
     type: DeviceType
     power_state: Optional[PowerState]
-    room: str = settings.default_room
+    room: str = Optional[str]
     return_response: bool = False
 
     @model_validator(mode="after")
     def validate_power_state(self):
-        if self.type != DeviceType.INTERFACE and self.power_state is None:
-            raise ValueError("power_state is required unless device type is 'interface'")
+        if self.type != DeviceType.INTERFACE :
+            if self.power_state is None:
+                raise ValueError("power_state is required unless device type is 'interface'")
+            if self.room is None:
+                raise ValueError("room is required unless device type is 'interface'")
         return self
 
 class CheckinResponse(BaseModel):
     device_names: List[str]
     theme_names: List[str]
     theme_colors: List[str]
-    epoch_time: str
+    epoch_time_seconds: str
     extras: List[str]
