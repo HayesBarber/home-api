@@ -15,7 +15,8 @@ class LOGGER:
     @classmethod
     def epoch_seconds(cls) -> str:
         now = cls._get_now()
-        return str(int(now.timestamp()))
+        adjusted = now.timestamp() - now.utcoffset().total_seconds()
+        return str(int(adjusted))
 
     @classmethod
     def current_date(cls) -> str:
