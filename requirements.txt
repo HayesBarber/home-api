@@ -5,3 +5,4 @@ lifxlan
 python-kasa
 httpx
 pydantic-settings
+tzdata
