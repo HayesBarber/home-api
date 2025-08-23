@@ -29,7 +29,7 @@ def get_current_temperature() -> WeatherResponse:
             "https://api.open-meteo.com/v1/forecast", params=params
         )
         response = responses[0]
-        temperature = response.Current().Variables(0).Value()
+        temperature = int(response.Current().Variables(0).Value())
         _last_temperature = WeatherResponse(
             temperature=f"{temperature} F"
         )
