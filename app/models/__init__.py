@@ -6,6 +6,7 @@ from app.models.power_action import PowerAction
 from app.models.device import DeviceConfig, DeviceReadResponse, DeviceDiscoveryResponse, EffectedDevicesResponse, InterfaceDevice
 from app.models.user import CreateUserRequest, DeleteUserRequest, GetUsersResponse
 from app.models.check_in import CheckinRequest, CheckinResponse
+from app.models.weather import WeatherResponse
 
 __all__ = [
     "get_room_from_string",
@@ -27,4 +28,5 @@ __all__ = [
     "GetUsersResponse",
     "CheckinRequest",
     "CheckinResponse",
+    "WeatherResponse",
 ]
