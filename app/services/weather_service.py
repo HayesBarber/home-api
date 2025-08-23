@@ -1,12 +1,13 @@
 import time
 from app.config import settings
 from app.utils.logger import LOGGER
+from app.models import WeatherResponse
 import openmeteo_requests
 
 _last_fetch_time = 0
-_last_temperature = None
+_last_temperature: WeatherResponse = WeatherResponse(temperature="? F")
 
-def get_current_temperature():
+def get_current_temperature() -> WeatherResponse:
     global _last_fetch_time, _last_temperature
     current_time = time.time()
     if current_time - _last_fetch_time < 600:
@@ -28,7 +29,10 @@ def get_current_temperature():
             "https://api.open-meteo.com/v1/forecast", params=params
         )
         response = responses[0]
-        _last_temperature = response.Current().Variables(0).Value()
+        temperature = response.Current().Variables(0).Value()
+        _last_temperature = WeatherResponse(
+            temperature=f"{temperature} F"
+        )
         _last_fetch_time = current_time
         return _last_temperature
     except Exception as e:
