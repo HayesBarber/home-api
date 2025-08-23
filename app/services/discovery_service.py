@@ -25,27 +25,44 @@ def checkin_device(req: CheckinRequest) -> CheckinResponse | None:
     if not req.return_response:
         return None
     
-    return build_checkin_response()
+    return build_checkin_response(req)
 
-def build_checkin_response() -> CheckinResponse:
-    devices = device_service.read_all_devices().devices
-    devices_names = [d.name for d in devices]
+def _append_room_devices(device_names: list, room: str):
+    devices_in_room = device_service.get_devices_of_room(room)
+    if len(devices_in_room) > 1:
+        device_names.append(room)
+    for device in devices_in_room:
+        device_names.append(device.name)
+
+def build_checkin_response(req: CheckinRequest) -> CheckinResponse:
+    device_names = []
+    all_rooms = device_service.get_all_rooms()
+    priority_room = req.room if req and req.room in all_rooms else None
+
+    if priority_room:
+        _append_room_devices(device_names, priority_room)
+
+    for room in all_rooms:
+        if room == priority_room:
+            continue
+        _append_room_devices(device_names, room)
+
+    device_names.append("Home")
 
     themes = themes_service.get_all_themes().themes
     theme_names = []
     theme_colors = []
-
-    for name, colors in themes.items():
+    for name in sorted(themes.keys()):
         theme_names.append(name)
-        theme_colors.append(colors)
-    
+        theme_colors.append(themes[name])
+
     epoch_time_seconds = LOGGER.epoch_seconds()
     extras = [
         LOGGER.current_date()
     ]
-    
+
     return CheckinResponse(
-        device_names=devices_names,
+        device_names=device_names,
         theme_names=theme_names,
         theme_colors=theme_colors,
         epoch_time_seconds=epoch_time_seconds,
