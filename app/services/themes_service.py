@@ -37,7 +37,7 @@ async def set_theme(req: ApplyThemeRequest) -> EffectedDevicesResponse:
         device.power_state = new_state
         effected_devices.append(device)
 
-    redis_client.set_all_models(Namespace.DEVICE_CONFIG, effected_devices, "name")
+    redis_client.set_all_models(Namespace.CONTROLLABLE_DEVICES, effected_devices, "name")
     return EffectedDevicesResponse(
         devices=effected_devices
     )

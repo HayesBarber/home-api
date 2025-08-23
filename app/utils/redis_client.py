@@ -8,7 +8,7 @@ from app.utils.logger import LOGGER
 T = TypeVar("T", bound=BaseModel)
 
 class Namespace(str, Enum):
-    DEVICE_CONFIG = "device_config"
+    CONTROLLABLE_DEVICES = "controllable_devices"
     INTERFACE_DEVICES = "interface_devices"
     THEME = "theme"
     USERS = "users"

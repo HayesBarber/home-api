@@ -20,7 +20,7 @@ def checkin_device(req: CheckinRequest) -> CheckinResponse | None:
             power_state=req.power_state,
             room=req.room
         )
-        redis_client.set_model(Namespace.DEVICE_CONFIG, device_config.name, device_config)
+        redis_client.set_model(Namespace.CONTROLLABLE_DEVICES, device_config.name, device_config)
 
     if not req.return_response:
         return None
@@ -72,14 +72,14 @@ def build_checkin_response(req: CheckinRequest) -> CheckinResponse:
 
 async def discover_lifx() -> DeviceDiscoveryResponse:
     lifx_devices = await lifx_util.discover_lifx_devices()
-    redis_client.set_all_models(Namespace.DEVICE_CONFIG, lifx_devices, "name")
+    redis_client.set_all_models(Namespace.CONTROLLABLE_DEVICES, lifx_devices, "name")
     return DeviceDiscoveryResponse(
         devices=lifx_devices
     )
 
 async def discover_kasa() -> DeviceDiscoveryResponse:
     kasa_devices = await kasa_util.discover_kasa_devices()
-    redis_client.set_all_models(Namespace.DEVICE_CONFIG, kasa_devices, "name")
+    redis_client.set_all_models(Namespace.CONTROLLABLE_DEVICES, kasa_devices, "name")
     return DeviceDiscoveryResponse(
         devices=kasa_devices
     )

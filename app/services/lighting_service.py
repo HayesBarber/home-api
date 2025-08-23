@@ -58,7 +58,7 @@ async def _perform_power_action(devices: List[ControllableDevice], action: Power
     for device, new_state in zip(devices, new_states):
         device.power_state = new_state
 
-    redis_client.set_all_models(Namespace.DEVICE_CONFIG, devices, "name")
+    redis_client.set_all_models(Namespace.CONTROLLABLE_DEVICES, devices, "name")
     return EffectedDevicesResponse(
         devices=devices
     )
