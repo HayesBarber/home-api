@@ -25,7 +25,7 @@ def checkin_device(req: CheckinRequest) -> CheckinResponse | None:
     if not req.return_response:
         return None
     
-    return build_checkin_response()
+    return build_checkin_response(req)
 
 def _append_room_devices(device_names: list, room: str):
     devices_in_room = device_service.get_devices_of_room(room)
