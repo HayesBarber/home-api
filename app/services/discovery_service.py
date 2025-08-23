@@ -28,9 +28,12 @@ def checkin_device(req: CheckinRequest) -> CheckinResponse | None:
     return build_checkin_response()
 
 def build_checkin_response() -> CheckinResponse:
-    devices = device_service.read_all_devices().devices
-    devices_sorted = sorted(devices, key=lambda d: d.name)
-    devices_names = [d.name for d in devices_sorted]
+    device_names = []
+    for room in device_service.get_all_rooms():
+        device_names.append(room)
+        for device in device_service.get_devices_of_room(room):
+            device_names.append(device.name)
+    device_names.append("Home")
 
     themes = themes_service.get_all_themes().themes
     theme_names = []
@@ -38,14 +41,14 @@ def build_checkin_response() -> CheckinResponse:
     for name in sorted(themes.keys()):
         theme_names.append(name)
         theme_colors.append(themes[name])
-    
+
     epoch_time_seconds = LOGGER.epoch_seconds()
     extras = [
         LOGGER.current_date()
     ]
-    
+
     return CheckinResponse(
-        device_names=devices_names,
+        device_names=device_names,
         theme_names=theme_names,
         theme_colors=theme_colors,
         epoch_time_seconds=epoch_time_seconds,
