@@ -6,4 +6,3 @@ python-kasa
 httpx
 pydantic-settings
 tzdata
-openmeteo-sdk
