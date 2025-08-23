@@ -3,21 +3,25 @@ from app.models import DeviceDiscoveryResponse, CheckinRequest, CheckinResponse,
 from app.utils import kasa_util, lifx_util, esp_util
 from app.services import device_service, themes_service, weather_service
 from datetime import datetime
+import asyncio
 
-def get_devices_that_checked_in_since_timestamp(timestamp: datetime) -> list[ControllableDevice | InterfaceDevice]:
-    result: list[ControllableDevice | InterfaceDevice] = []
-
+def get_devices_that_checked_in_since_timestamp(timestamp: datetime) -> DeviceDiscoveryResponse:
     controllables = redis_client.get_all_models(Namespace.CONTROLLABLE_DEVICES, ControllableDevice)
+    controllables_result: list[ControllableDevice] = []
     for device in controllables.values():
         if device.last_updated and device.last_updated > timestamp:
-            result.append(device)
+            controllables_result.append(device)
 
     interfaces = redis_client.get_all_models(Namespace.INTERFACE_DEVICES, InterfaceDevice)
+    interfaces_result: list[InterfaceDevice] = []
     for device in interfaces.values():
         if device.last_updated and device.last_updated > timestamp:
-            result.append(device)
+            interfaces_result.append(device)
 
-    return result
+    return DeviceDiscoveryResponse(
+        controllable_devices=controllables_result,
+        interface_devices=interfaces_result,
+    )
 
 def checkin_device(req: CheckinRequest) -> CheckinResponse | None:
     if req.type == DeviceType.INTERFACE:
@@ -100,5 +104,8 @@ async def discover_kasa() -> DeviceDiscoveryResponse:
         controllable_devices=kasa_devices
     )
 
-async def discover_esp(passcode: str, port: int) -> None:
+async def discover_esp(passcode: str, port: int) -> DeviceDiscoveryResponse:
+    start_time = LOGGER.get_now()
     await esp_util.discover_esp_devices(passcode, port)
+    await asyncio.sleep(2.5)
+    return get_devices_that_checked_in_since_timestamp(start_time)
