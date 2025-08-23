@@ -11,6 +11,14 @@ def read_all_devices() -> DeviceReadResponse:
         devices=devices
     )
 
+def get_all_rooms() -> set[str]:
+    s = set()
+
+    for d in read_all_devices().devices:
+        s.add(d.room)
+    
+    return s
+
 def delete_devcie(name: str):
     redis_client.delete(Namespace.DEVICE_CONFIG, name)
 
