@@ -7,7 +7,7 @@ from app.services import device_service
 from typing import List, Optional
 
 async def set_state(name: str, action: PowerAction) -> EffectedDevicesResponse:
-    if name == "home":
+    if name.lower() == "home":
         return await set_home_state(action)
 
     room = get_room_from_string(name)
