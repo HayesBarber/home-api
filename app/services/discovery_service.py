@@ -29,15 +29,15 @@ def checkin_device(req: CheckinRequest) -> CheckinResponse | None:
 
 def build_checkin_response() -> CheckinResponse:
     devices = device_service.read_all_devices().devices
-    devices_names = [d.name for d in devices]
+    devices_sorted = sorted(devices, key=lambda d: d.name)
+    devices_names = [d.name for d in devices_sorted]
 
     themes = themes_service.get_all_themes().themes
     theme_names = []
     theme_colors = []
-
-    for name, colors in themes.items():
+    for name in sorted(themes.keys()):
         theme_names.append(name)
-        theme_colors.append(colors)
+        theme_colors.append(themes[name])
     
     epoch_time_seconds = LOGGER.epoch_seconds()
     extras = [
