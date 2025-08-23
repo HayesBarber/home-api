@@ -30,8 +30,10 @@ def checkin_device(req: CheckinRequest) -> CheckinResponse | None:
 def build_checkin_response() -> CheckinResponse:
     device_names = []
     for room in device_service.get_all_rooms():
-        device_names.append(room)
-        for device in device_service.get_devices_of_room(room):
+        devices_in_room = device_service.get_devices_of_room(room)
+        if len(devices_in_room) > 1:
+            device_names.append(room)
+        for device in devices_in_room:
             device_names.append(device.name)
     device_names.append("Home")
 
