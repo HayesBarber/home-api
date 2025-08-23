@@ -74,14 +74,14 @@ async def discover_lifx() -> DeviceDiscoveryResponse:
     lifx_devices = await lifx_util.discover_lifx_devices()
     redis_client.set_all_models(Namespace.CONTROLLABLE_DEVICES, lifx_devices, "name")
     return DeviceDiscoveryResponse(
-        devices=lifx_devices
+        controllable_devices=lifx_devices
     )
 
 async def discover_kasa() -> DeviceDiscoveryResponse:
     kasa_devices = await kasa_util.discover_kasa_devices()
     redis_client.set_all_models(Namespace.CONTROLLABLE_DEVICES, kasa_devices, "name")
     return DeviceDiscoveryResponse(
-        devices=kasa_devices
+        controllable_devices=kasa_devices
     )
 
 async def discover_esp(passcode: str, port: int) -> None:

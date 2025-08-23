@@ -32,8 +32,8 @@ class DeviceReadResponse(BaseModel):
     devices: List[ControllableDevice]
 
 class DeviceDiscoveryResponse(BaseModel):
-    controllable_devices: List[ControllableDevice]
-    interface_devices: List[InterfaceDevice]
+    controllable_devices: List[ControllableDevice] = Field(default_factory=list)
+    interface_devices: List[InterfaceDevice] = Field(default_factory=list)
 
 class EffectedDevicesResponse(BaseModel):
     devices: List[ControllableDevice]
