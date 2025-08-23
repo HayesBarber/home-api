@@ -2,6 +2,22 @@ from app.utils.redis_client import redis_client, Namespace, LOGGER
 from app.models import DeviceDiscoveryResponse, CheckinRequest, CheckinResponse, ControllableDevice, DeviceType, InterfaceDevice
 from app.utils import kasa_util, lifx_util, esp_util
 from app.services import device_service, themes_service, weather_service
+from datetime import datetime
+
+def get_devices_that_checked_in_since_timestamp(timestamp: datetime) -> list[ControllableDevice | InterfaceDevice]:
+    result: list[ControllableDevice | InterfaceDevice] = []
+
+    controllables = redis_client.get_all_models(Namespace.CONTROLLABLE_DEVICES, ControllableDevice)
+    for device in controllables.values():
+        if device.last_updated and device.last_updated > timestamp:
+            result.append(device)
+
+    interfaces = redis_client.get_all_models(Namespace.INTERFACE_DEVICES, InterfaceDevice)
+    for device in interfaces.values():
+        if device.last_updated and device.last_updated > timestamp:
+            result.append(device)
+
+    return result
 
 def checkin_device(req: CheckinRequest) -> CheckinResponse | None:
     if req.type == DeviceType.INTERFACE:

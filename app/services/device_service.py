@@ -1,23 +1,7 @@
 from app.utils.redis_client import redis_client, Namespace
 from app.utils import kasa_util, lifx_util
-from app.models import ControllableDevice, InterfaceDevice, DeviceType, DeviceReadResponse
+from app.models import ControllableDevice, DeviceType, DeviceReadResponse
 from app.config import settings
-from datetime import datetime
-
-def get_devices_that_checked_in_since_timestamp(timestamp: datetime) -> list[ControllableDevice | InterfaceDevice]:
-    result: list[ControllableDevice | InterfaceDevice] = []
-
-    controllables = redis_client.get_all_models(Namespace.CONTROLLABLE_DEVICES, ControllableDevice)
-    for device in controllables.values():
-        if device.last_updated and device.last_updated > timestamp:
-            result.append(device)
-
-    interfaces = redis_client.get_all_models(Namespace.INTERFACE_DEVICES, InterfaceDevice)
-    for device in interfaces.values():
-        if device.last_updated and device.last_updated > timestamp:
-            result.append(device)
-
-    return result
 
 def read_all_devices() -> DeviceReadResponse:
     all_configs_dict = redis_client.get_all_models(Namespace.CONTROLLABLE_DEVICES, ControllableDevice)
