@@ -1,7 +1,6 @@
 from pydantic import BaseModel, field_validator
 from ipaddress import IPv4Address
-from typing import Optional, List
-from datetime import datetime
+from typing import List
 from app.models import DeviceType, PowerState
 from app.config import settings
 
