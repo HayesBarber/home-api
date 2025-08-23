@@ -1,7 +1,27 @@
 from app.utils.redis_client import redis_client, Namespace, LOGGER
-from app.models import DeviceDiscoveryResponse, CheckinRequest, CheckinResponse, DeviceConfig, DeviceType, InterfaceDevice
+from app.models import DeviceDiscoveryResponse, CheckinRequest, CheckinResponse, ControllableDevice, DeviceType, InterfaceDevice
 from app.utils import kasa_util, lifx_util, esp_util
 from app.services import device_service, themes_service, weather_service
+from datetime import datetime
+import asyncio
+
+def get_devices_that_checked_in_since_timestamp(timestamp: datetime) -> DeviceDiscoveryResponse:
+    controllables = redis_client.get_all_models(Namespace.CONTROLLABLE_DEVICES, ControllableDevice)
+    controllables_result: list[ControllableDevice] = []
+    for device in controllables.values():
+        if device.last_updated and device.last_updated > timestamp:
+            controllables_result.append(device)
+
+    interfaces = redis_client.get_all_models(Namespace.INTERFACE_DEVICES, InterfaceDevice)
+    interfaces_result: list[InterfaceDevice] = []
+    for device in interfaces.values():
+        if device.last_updated and device.last_updated > timestamp:
+            interfaces_result.append(device)
+
+    return DeviceDiscoveryResponse(
+        controllable_devices=controllables_result,
+        interface_devices=interfaces_result,
+    )
 
 def checkin_device(req: CheckinRequest) -> CheckinResponse | None:
     if req.type == DeviceType.INTERFACE:
@@ -12,7 +32,7 @@ def checkin_device(req: CheckinRequest) -> CheckinResponse | None:
         )
         redis_client.set_model(Namespace.INTERFACE_DEVICES, interface_device.name, interface_device)
     else:
-        device_config = DeviceConfig(
+        device_config = ControllableDevice(
             name=req.name,
             ip=req.ip,
             mac=req.mac,
@@ -20,7 +40,7 @@ def checkin_device(req: CheckinRequest) -> CheckinResponse | None:
             power_state=req.power_state,
             room=req.room
         )
-        redis_client.set_model(Namespace.DEVICE_CONFIG, device_config.name, device_config)
+        redis_client.set_model(Namespace.CONTROLLABLE_DEVICES, device_config.name, device_config)
 
     if not req.return_response:
         return None
@@ -72,17 +92,20 @@ def build_checkin_response(req: CheckinRequest) -> CheckinResponse:
 
 async def discover_lifx() -> DeviceDiscoveryResponse:
     lifx_devices = await lifx_util.discover_lifx_devices()
-    redis_client.set_all_models(Namespace.DEVICE_CONFIG, lifx_devices, "name")
+    redis_client.set_all_models(Namespace.CONTROLLABLE_DEVICES, lifx_devices, "name")
     return DeviceDiscoveryResponse(
-        devices=lifx_devices
+        controllable_devices=lifx_devices
     )
 
 async def discover_kasa() -> DeviceDiscoveryResponse:
     kasa_devices = await kasa_util.discover_kasa_devices()
-    redis_client.set_all_models(Namespace.DEVICE_CONFIG, kasa_devices, "name")
+    redis_client.set_all_models(Namespace.CONTROLLABLE_DEVICES, kasa_devices, "name")
     return DeviceDiscoveryResponse(
-        devices=kasa_devices
+        controllable_devices=kasa_devices
     )
 
-async def discover_esp(passcode: str, port: int) -> None:
+async def discover_esp(passcode: str, port: int) -> DeviceDiscoveryResponse:
+    start_time = LOGGER.get_now()
     await esp_util.discover_esp_devices(passcode, port)
+    await asyncio.sleep(2.5)
+    return get_devices_that_checked_in_since_timestamp(start_time)

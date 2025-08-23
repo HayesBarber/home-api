@@ -1,10 +1,10 @@
 from kasa import Discover, Device
-from app.models import DeviceConfig, DeviceType, PowerState, PowerAction
+from app.models import ControllableDevice, DeviceType, PowerState, PowerAction
 from typing import List
 from app.services import device_service
 from app.utils.logger import LOGGER
 
-async def discover_kasa_devices() -> List[DeviceConfig]:
+async def discover_kasa_devices() -> List[ControllableDevice]:
     LOGGER.info("Discovering Kasa devices...")
     devices = await Discover.discover()
 
@@ -14,7 +14,7 @@ async def discover_kasa_devices() -> List[DeviceConfig]:
         LOGGER.info(f"Found {dev.alias} at {addr}")
         room, cleaned_name = device_service.extract_room_name(dev.alias)
         results.append(
-            DeviceConfig(
+            ControllableDevice(
                 name=cleaned_name,
                 ip=addr,
                 mac=dev.mac,
@@ -29,11 +29,11 @@ async def discover_kasa_devices() -> List[DeviceConfig]:
 
     return results
 
-async def _connect(config: DeviceConfig) -> Device:
+async def _connect(config: ControllableDevice) -> Device:
     device = await Device.connect(host=str(config.ip))
     return device
 
-async def control_kasa_device(config: DeviceConfig, action: PowerAction) -> PowerState:
+async def control_kasa_device(config: ControllableDevice, action: PowerAction) -> PowerState:
     device = await _connect(config)
     match action:
         case PowerAction.ON:
@@ -50,7 +50,7 @@ async def control_kasa_device(config: DeviceConfig, action: PowerAction) -> Powe
                 await device.turn_on()
                 return PowerState.ON
 
-async def update_kasa_device_name(config: DeviceConfig, new_name: str) -> str:
+async def update_kasa_device_name(config: ControllableDevice, new_name: str) -> str:
     device = await _connect(config)
     await device.set_alias(new_name)
     return new_name

@@ -1,13 +1,13 @@
 import asyncio
 from lifxlan import LifxLAN, Light
-from app.models import DeviceConfig, DeviceType, PowerState, PowerAction
+from app.models import ControllableDevice, DeviceType, PowerState, PowerAction
 from typing import List
 from app.services import device_service
 from app.utils.logger import LOGGER
 
 _lifx = LifxLAN()
 
-async def discover_lifx_devices() -> List[DeviceConfig]:
+async def discover_lifx_devices() -> List[ControllableDevice]:
     LOGGER.info("Discovering Lifx devices...")
     devices: List[Light] = await asyncio.to_thread(_lifx.get_lights)
     results = []
@@ -17,7 +17,7 @@ async def discover_lifx_devices() -> List[DeviceConfig]:
         room, cleaned_name = device_service.extract_room_name(d.get_label())
         power_state = await asyncio.to_thread(d.get_power)
         results.append(
-            DeviceConfig(
+            ControllableDevice(
                 name=cleaned_name,
                 ip=d.get_ip_addr(),
                 mac=d.get_mac_addr(),
@@ -32,11 +32,11 @@ async def discover_lifx_devices() -> List[DeviceConfig]:
 
     return results
 
-def _connect(config: DeviceConfig) -> Light:
+def _connect(config: ControllableDevice) -> Light:
     light = Light(config.mac, str(config.ip)) 
     return light
 
-async def control_lifx_device(config: DeviceConfig, action: PowerAction) -> PowerState:
+async def control_lifx_device(config: ControllableDevice, action: PowerAction) -> PowerState:
     device = _connect(config)
     match action:
         case PowerAction.ON:
@@ -54,7 +54,7 @@ async def control_lifx_device(config: DeviceConfig, action: PowerAction) -> Powe
                 await asyncio.to_thread(device.set_power, "on")
                 return PowerState.ON
 
-async def update_lifx_device_name(config: DeviceConfig, new_name: str) -> str:
+async def update_lifx_device_name(config: ControllableDevice, new_name: str) -> str:
     device = _connect(config)
     await asyncio.to_thread(device.set_label, new_name)
     return new_name

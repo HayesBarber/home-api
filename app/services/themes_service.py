@@ -1,4 +1,4 @@
-from app.models import CreateThemeRequest, DeleteThemeRequest, GetThemesResponse, ApplyThemeRequest, THEME_CAPABLE_DEVICES, DeviceConfig, PowerState, DeviceType, EffectedDevicesResponse
+from app.models import CreateThemeRequest, DeleteThemeRequest, GetThemesResponse, ApplyThemeRequest, THEME_CAPABLE_DEVICES, ControllableDevice, PowerState, DeviceType, EffectedDevicesResponse
 from app.utils.redis_client import redis_client, Namespace
 import asyncio
 from app.services import device_service
@@ -20,7 +20,7 @@ def get_all_themes() -> GetThemesResponse:
 async def set_theme(req: ApplyThemeRequest) -> EffectedDevicesResponse:
     devices = device_service.read_all_devices().devices
 
-    async def _apply_theme(device: DeviceConfig) -> tuple[DeviceConfig, PowerState]:
+    async def _apply_theme(device: ControllableDevice) -> tuple[ControllableDevice, PowerState]:
         match device.type:
             case DeviceType.LED_STRIP:
                 new_state = await led_strip_util.set_led_theme(device, req.colors)
@@ -31,13 +31,13 @@ async def set_theme(req: ApplyThemeRequest) -> EffectedDevicesResponse:
     theme_devices = [device for device in devices if device.type in THEME_CAPABLE_DEVICES]
     results = await asyncio.gather(*[_apply_theme(device) for device in theme_devices])
 
-    effected_devices: List[DeviceConfig] = []
+    effected_devices: List[ControllableDevice] = []
 
     for device, new_state in results:
         device.power_state = new_state
         effected_devices.append(device)
 
-    redis_client.set_all_models(Namespace.DEVICE_CONFIG, effected_devices, "name")
+    redis_client.set_all_models(Namespace.CONTROLLABLE_DEVICES, effected_devices, "name")
     return EffectedDevicesResponse(
         devices=effected_devices
     )
