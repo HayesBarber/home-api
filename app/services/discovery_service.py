@@ -27,9 +27,23 @@ def checkin_device(req: CheckinRequest) -> CheckinResponse | None:
     
     return build_checkin_response()
 
-def build_checkin_response() -> CheckinResponse:
+def build_checkin_response(req: CheckinRequest) -> CheckinResponse:
     device_names = []
-    for room in device_service.get_all_rooms():
+    all_rooms = device_service.get_all_rooms()
+    priority_room = req.room if req and req.room in all_rooms else None
+    processed_rooms = set()
+
+    if priority_room:
+        devices_in_room = device_service.get_devices_of_room(priority_room)
+        if len(devices_in_room) > 1:
+            device_names.append(priority_room)
+        for device in devices_in_room:
+            device_names.append(device.name)
+        processed_rooms.add(priority_room)
+
+    for room in all_rooms:
+        if room in processed_rooms:
+            continue
         devices_in_room = device_service.get_devices_of_room(room)
         if len(devices_in_room) > 1:
             device_names.append(room)
