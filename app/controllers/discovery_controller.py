@@ -25,6 +25,6 @@ async def discover_kasa():
 async def discover_lifx():
     return await discovery_service.discover_lifx()
 
-@router.post("/discover/esp", status_code=DeviceDiscoveryResponse)
+@router.post("/discover/esp", response_model=DeviceDiscoveryResponse)
 async def discover_esp(passcode: str, port: int):
     return await discovery_service.discover_esp(passcode, port)
