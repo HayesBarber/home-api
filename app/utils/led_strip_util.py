@@ -1,8 +1,8 @@
 import httpx
-from app.models import DeviceConfig, PowerState, PowerAction
+from app.models import ControllableDevice, PowerState, PowerAction
 from app.utils.logger import LOGGER
 
-async def _send_led_command(config: DeviceConfig, payload: dict, log_action: str) -> PowerState:
+async def _send_led_command(config: ControllableDevice, payload: dict, log_action: str) -> PowerState:
     url = f"http://{config.ip}/message"
     try:
         async with httpx.AsyncClient() as client:
@@ -19,10 +19,10 @@ async def _send_led_command(config: DeviceConfig, payload: dict, log_action: str
         LOGGER.error(f"Error response {exc.response.status_code} while requesting {exc.request.url!r}: {exc}")
         return config.power_state
 
-async def control_led_strip(config: DeviceConfig, action: PowerAction) -> PowerState:
+async def control_led_strip(config: ControllableDevice, action: PowerAction) -> PowerState:
     payload = {"action": action.value}
     return await _send_led_command(config, payload, action.value)
 
-async def set_led_theme(config: DeviceConfig, colors: str) -> PowerState:
+async def set_led_theme(config: ControllableDevice, colors: str) -> PowerState:
     payload = {"action": "fill", "colors": colors}
     return await _send_led_command(config, payload, "fill")

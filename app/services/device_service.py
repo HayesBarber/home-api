@@ -1,11 +1,11 @@
 from app.utils.redis_client import redis_client, Namespace
 from app.utils import kasa_util, lifx_util
-from app.models import DeviceConfig, DeviceType, DeviceReadResponse
+from app.models import ControllableDevice, DeviceType, DeviceReadResponse
 from typing import List
 from app.config import settings
 
 def read_all_devices() -> DeviceReadResponse:
-    all_configs_dict = redis_client.get_all_models(Namespace.DEVICE_CONFIG, DeviceConfig)
+    all_configs_dict = redis_client.get_all_models(Namespace.DEVICE_CONFIG, ControllableDevice)
     devices = list(all_configs_dict.values())
     return DeviceReadResponse(
         devices=devices
@@ -22,13 +22,13 @@ def get_all_rooms() -> set[str]:
 def delete_devcie(name: str):
     redis_client.delete(Namespace.DEVICE_CONFIG, name)
 
-def get_device_config(name: str) -> DeviceConfig:
-    config = redis_client.get_model(Namespace.DEVICE_CONFIG, name, DeviceConfig)
+def get_device_config(name: str) -> ControllableDevice:
+    config = redis_client.get_model(Namespace.DEVICE_CONFIG, name, ControllableDevice)
     if not config:
         raise KeyError(f"{name} config not found")
     return config
 
-def get_devices_of_room(room: str) -> List[DeviceConfig]:
+def get_devices_of_room(room: str) -> List[ControllableDevice]:
     all_devices = read_all_devices().devices
     return [device for device in all_devices if device.room == room]
 

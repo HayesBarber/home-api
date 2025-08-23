@@ -1,5 +1,5 @@
 from app.utils.redis_client import redis_client, Namespace, LOGGER
-from app.models import DeviceDiscoveryResponse, CheckinRequest, CheckinResponse, DeviceConfig, DeviceType, InterfaceDevice
+from app.models import DeviceDiscoveryResponse, CheckinRequest, CheckinResponse, ControllableDevice, DeviceType, InterfaceDevice
 from app.utils import kasa_util, lifx_util, esp_util
 from app.services import device_service, themes_service, weather_service
 
@@ -12,7 +12,7 @@ def checkin_device(req: CheckinRequest) -> CheckinResponse | None:
         )
         redis_client.set_model(Namespace.INTERFACE_DEVICES, interface_device.name, interface_device)
     else:
-        device_config = DeviceConfig(
+        device_config = ControllableDevice(
             name=req.name,
             ip=req.ip,
             mac=req.mac,
