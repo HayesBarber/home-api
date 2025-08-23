@@ -1,13 +1,16 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
+from datetime import datetime
 from ipaddress import IPv4Address
 from typing import List
 from app.models import DeviceType, PowerState
 from app.config import settings
+from app.utils.logger import LOGGER
 
 class InterfaceDevice(BaseModel):
     name: str
     ip: IPv4Address
     mac: str
+    last_updated: datetime = Field(default_factory=LOGGER.get_now)
 
 class DeviceConfig(InterfaceDevice):
     type: DeviceType
