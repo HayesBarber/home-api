@@ -1,7 +1,7 @@
 from app.utils.redis_client import redis_client, Namespace, LOGGER
 from app.models import DeviceDiscoveryResponse, CheckinRequest, CheckinResponse, DeviceConfig, DeviceType, InterfaceDevice
 from app.utils import kasa_util, lifx_util, esp_util
-from app.services import device_service, themes_service
+from app.services import device_service, themes_service, weather_service
 
 def checkin_device(req: CheckinRequest) -> CheckinResponse | None:
     if req.type == DeviceType.INTERFACE:
@@ -58,7 +58,8 @@ def build_checkin_response(req: CheckinRequest) -> CheckinResponse:
 
     epoch_time_seconds = LOGGER.epoch_seconds()
     extras = [
-        LOGGER.current_date()
+        LOGGER.current_date(),
+        weather_service.get_current_temperature().temperature
     ]
 
     return CheckinResponse(
