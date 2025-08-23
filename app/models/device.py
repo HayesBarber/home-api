@@ -12,10 +12,14 @@ class InterfaceDevice(BaseModel):
     mac: str
     last_updated: datetime = Field(default_factory=LOGGER.get_now)
 
-class ControllableDevice(InterfaceDevice):
+class ControllableDevice(BaseModel):
+    name: str
+    ip: IPv4Address
+    mac: str
     type: DeviceType
     power_state: PowerState
     room: str = settings.default_room
+    last_updated: datetime = Field(default_factory=LOGGER.get_now)
 
     @field_validator("room", mode="before")
     @classmethod
@@ -28,7 +32,8 @@ class DeviceReadResponse(BaseModel):
     devices: List[ControllableDevice]
 
 class DeviceDiscoveryResponse(BaseModel):
-    devices: List[InterfaceDevice]
+    controllable_devices: List[ControllableDevice]
+    interface_devices: List[InterfaceDevice]
 
 class EffectedDevicesResponse(BaseModel):
     devices: List[ControllableDevice]
