@@ -27,6 +27,13 @@ def checkin_device(req: CheckinRequest) -> CheckinResponse | None:
     
     return build_checkin_response()
 
+def _append_room_devices(device_names: list, room: str):
+    devices_in_room = device_service.get_devices_of_room(room)
+    if len(devices_in_room) > 1:
+        device_names.append(room)
+    for device in devices_in_room:
+        device_names.append(device.name)
+
 def build_checkin_response(req: CheckinRequest) -> CheckinResponse:
     device_names = []
     all_rooms = device_service.get_all_rooms()
@@ -34,21 +41,14 @@ def build_checkin_response(req: CheckinRequest) -> CheckinResponse:
     processed_rooms = set()
 
     if priority_room:
-        devices_in_room = device_service.get_devices_of_room(priority_room)
-        if len(devices_in_room) > 1:
-            device_names.append(priority_room)
-        for device in devices_in_room:
-            device_names.append(device.name)
+        _append_room_devices(device_names, priority_room)
         processed_rooms.add(priority_room)
 
     for room in all_rooms:
         if room in processed_rooms:
             continue
-        devices_in_room = device_service.get_devices_of_room(room)
-        if len(devices_in_room) > 1:
-            device_names.append(room)
-        for device in devices_in_room:
-            device_names.append(device.name)
+        _append_room_devices(device_names, room)
+
     device_names.append("Home")
 
     themes = themes_service.get_all_themes().themes
