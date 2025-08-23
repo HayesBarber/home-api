@@ -10,7 +10,9 @@ def get_current_temperature():
     global _last_fetch_time, _last_temperature
     current_time = time.time()
     if current_time - _last_fetch_time < 600:
+        LOGGER.info("Using cached weather response")
         return _last_temperature
+    LOGGER.info("Refetching weather data")
     try:
         client = openmeteo_requests.Client()
         params = {
