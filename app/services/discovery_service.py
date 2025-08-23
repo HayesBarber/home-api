@@ -38,14 +38,12 @@ def build_checkin_response(req: CheckinRequest) -> CheckinResponse:
     device_names = []
     all_rooms = device_service.get_all_rooms()
     priority_room = req.room if req and req.room in all_rooms else None
-    processed_rooms = set()
 
     if priority_room:
         _append_room_devices(device_names, priority_room)
-        processed_rooms.add(priority_room)
 
     for room in all_rooms:
-        if room in processed_rooms:
+        if room == priority_room:
             continue
         _append_room_devices(device_names, room)
 
