@@ -9,10 +9,7 @@ class InterfaceDevice(BaseModel):
     ip: IPv4Address
     mac: str
 
-class DeviceConfig(BaseModel):
-    name: str
-    ip: IPv4Address
-    mac: str
+class DeviceConfig(InterfaceDevice):
     type: DeviceType
     power_state: PowerState
     room: str = settings.default_room
