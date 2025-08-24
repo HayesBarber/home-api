@@ -1,5 +1,11 @@
 import asyncio
-from app.models import HealthResponse, HealthRequest, HealthState, ControllableDevice, InterfaceDevice
+from app.models import (
+    HealthResponse,
+    HealthRequest,
+    HealthState,
+    ControllableDevice,
+    InterfaceDevice,
+)
 from app.services.discovery_service import (
     discover_lifx,
     discover_kasa,
@@ -9,14 +15,22 @@ from app.services.discovery_service import (
 from app.utils.redis_client import redis_client, Namespace
 from app.utils.logger import LOGGER
 
+
 async def get_health_state(req: HealthRequest) -> HealthResponse:
-    expected_controllables = redis_client.get_all_models(Namespace.CONTROLLABLE_DEVICES, ControllableDevice)
-    expected_interfaces = redis_client.get_all_models(Namespace.INTERFACE_DEVICES, InterfaceDevice)
-    expected_total = len(expected_controllables) + len(expected_interfaces)
-
-    start_time = LOGGER.get_now()
-
     try:
+        expected_controllables = redis_client.get_all_models(
+            Namespace.CONTROLLABLE_DEVICES, ControllableDevice
+        )
+        expected_interfaces = redis_client.get_all_models(
+            Namespace.INTERFACE_DEVICES, InterfaceDevice
+        )
+        expected_total = len(expected_controllables) + len(expected_interfaces)
+
+        if expected_total <= 0:
+            return HealthResponse(state=HealthState.HEALTHY)
+
+        start_time = LOGGER.get_now()
+
         await asyncio.gather(
             discover_lifx(),
             discover_kasa(),
@@ -24,16 +38,23 @@ async def get_health_state(req: HealthRequest) -> HealthResponse:
         )
 
         discovered = get_devices_that_checked_in_since_timestamp(start_time)
-        discovered_total = len(discovered.controllable_devices) + len(discovered.interface_devices)
+        discovered_total = len(discovered.controllable_devices) + len(
+            discovered.interface_devices
+        )
 
         if discovered_total == 0:
-            state = HealthState.UNHEALTHY
-        elif discovered_total < expected_total:
-            state = HealthState.MODERATE
-        else:
-            state = HealthState.HEALTHY
+            return HealthResponse(
+                state=HealthState.UNHEALTHY, reason="no_devices_found"
+            )
 
-        return HealthResponse(state=state)
+        if discovered_total < expected_total:
+            return HealthResponse(
+                state=HealthState.MODERATE,
+                reason="some_devices_not_found",
+                missing_devices=[],
+            )
+
+        return HealthResponse(state=HealthState.HEALTHY)
     except Exception as e:
         LOGGER.error(f"Error in get_health_state: {e}")
-        return HealthResponse(state=HealthState.UNHEALTHY)
+        return HealthResponse(state=HealthState.UNHEALTHY, reason="exception")
