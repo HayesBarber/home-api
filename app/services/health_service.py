@@ -38,9 +38,9 @@ async def get_health_state(req: HealthRequest) -> HealthResponse:
         )
 
         discovered = get_devices_that_checked_in_since_timestamp(start_time)
-        discovered_total = len(discovered.controllable_devices) + len(
-            discovered.interface_devices
-        )
+        discovered_controllables = discovered.controllable_devices
+        discovered_interfaces = discovered.interface_devices
+        discovered_total = len(discovered_controllables) + len(discovered_interfaces)
 
         if discovered_total == 0:
             return HealthResponse(
