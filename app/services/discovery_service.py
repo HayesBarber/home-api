@@ -81,6 +81,10 @@ def build_checkin_response(req: CheckinRequest) -> CheckinResponse:
         LOGGER.current_date(),
         weather_service.get_current_temperature().temperature
     ]
+    extras_font_sizes = [
+        "L",
+        "XL",
+    ]
 
     return CheckinResponse(
         device_names=device_names,
@@ -88,6 +92,7 @@ def build_checkin_response(req: CheckinRequest) -> CheckinResponse:
         theme_colors=theme_colors,
         epoch_time_seconds=epoch_time_seconds,
         extras=extras,
+        extras_font_sizes=extras_font_sizes,
     )
 
 async def discover_lifx() -> DeviceDiscoveryResponse:

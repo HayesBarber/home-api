@@ -1,5 +1,5 @@
 from pydantic import BaseModel, model_validator, field_validator
-from typing import List, Optional
+from typing import Optional
 from ipaddress import IPv4Address
 from app.models import DeviceType, PowerState
 from app.config import settings
@@ -30,8 +30,9 @@ class CheckinRequest(BaseModel):
         return self
 
 class CheckinResponse(BaseModel):
-    device_names: List[str]
-    theme_names: List[str]
-    theme_colors: List[str]
-    epoch_time_seconds: str
-    extras: List[str]
+    device_names: list[str]
+    theme_names: list[str]
+    theme_colors: list[str]
+    lpoch_time_seconds: str
+    extras: list[str]
+    extras_font_sizes: list[str]
