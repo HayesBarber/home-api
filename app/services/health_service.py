@@ -1,4 +1,3 @@
-from datetime import datetime
 import asyncio
 from app.models import HealthResponse, HealthRequest, HealthState, ControllableDevice, InterfaceDevice
 from app.services.discovery_service import (
