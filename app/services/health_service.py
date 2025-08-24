@@ -44,7 +44,8 @@ async def get_health_state(req: HealthRequest) -> HealthResponse:
 
         if discovered_total == 0:
             return HealthResponse(
-                state=HealthState.UNHEALTHY, reason="no_devices_found"
+                state=HealthState.UNHEALTHY,
+                reason="no_devices_found",
             )
 
         if discovered_total < expected_total:
