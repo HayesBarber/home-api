@@ -49,10 +49,20 @@ async def get_health_state(req: HealthRequest) -> HealthResponse:
             )
 
         if discovered_total < expected_total:
+            expected_names = {
+                name
+                for name in expected_controllables.keys() + expected_interfaces.keys()
+            }
+            discovered_names = {
+                d.name for d in discovered_controllables + discovered_interfaces
+            }
+
+            missing_names = expected_names - discovered_names
+
             return HealthResponse(
                 state=HealthState.MODERATE,
                 reason="some_devices_not_found",
-                missing_devices=[],
+                missing_devices=missing_names,
             )
 
         return HealthResponse(state=HealthState.HEALTHY)
