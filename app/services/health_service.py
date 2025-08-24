@@ -16,20 +16,24 @@ async def get_health_state(req: HealthRequest) -> HealthResponse:
 
     start_time = LOGGER.get_now()
 
-    await asyncio.gather(
-        discover_lifx(),
-        discover_kasa(),
-        discover_esp(req.passcode, req.port),
-    )
+    try:
+        await asyncio.gather(
+            discover_lifx(),
+            discover_kasa(),
+            discover_esp(req.passcode, req.port),
+        )
 
-    discovered = get_devices_that_checked_in_since_timestamp(start_time)
-    discovered_total = len(discovered.controllable_devices) + len(discovered.interface_devices)
+        discovered = get_devices_that_checked_in_since_timestamp(start_time)
+        discovered_total = len(discovered.controllable_devices) + len(discovered.interface_devices)
 
-    if discovered_total == 0:
-        state = HealthState.UNHEALTHY
-    elif discovered_total < expected_total:
-        state = HealthState.MODERATE
-    else:
-        state = HealthState.HEALTHY
+        if discovered_total == 0:
+            state = HealthState.UNHEALTHY
+        elif discovered_total < expected_total:
+            state = HealthState.MODERATE
+        else:
+            state = HealthState.HEALTHY
 
-    return HealthResponse(state=state)
+        return HealthResponse(state=state)
+    except Exception as e:
+        LOGGER.error(f"Error in get_health_state: {e}")
+        return HealthResponse(state=HealthState.UNHEALTHY)
