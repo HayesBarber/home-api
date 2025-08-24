@@ -8,6 +8,8 @@ class HealthState(str, Enum):
 
 class HealthResponse(BaseModel):
     state: HealthState
+    missing_devices: list[str] | None = None
+    reason: str | None = None 
 
 class HealthRequest(BaseModel):
     passcode: str
