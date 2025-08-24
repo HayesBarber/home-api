@@ -5,5 +5,5 @@ from app.models import HealthResponse
 router = APIRouter(prefix="/health", tags=["Health"])
 
 @router.get("", response_model=HealthResponse)
-def get_health():
-    return health_service.get_health_state()
+async def get_health():
+    return await health_service.get_health_state()
