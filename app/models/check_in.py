@@ -33,6 +33,6 @@ class CheckinResponse(BaseModel):
     device_names: list[str]
     theme_names: list[str]
     theme_colors: list[str]
-    lpoch_time_seconds: str
+    epoch_time_seconds: str
     extras: list[str]
     extras_font_sizes: list[str]
