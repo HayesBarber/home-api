@@ -1,6 +1,6 @@
 from datetime import datetime
 import asyncio
-from app.models import HealthResponse, HealthState, ControllableDevice, InterfaceDevice
+from app.models import HealthResponse, HealthRequest, HealthState, ControllableDevice, InterfaceDevice
 from app.services.discovery_service import (
     discover_lifx,
     discover_kasa,
@@ -10,7 +10,7 @@ from app.services.discovery_service import (
 from app.utils.redis_client import redis_client, Namespace
 from app.utils.logger import LOGGER
 
-async def get_health_state() -> HealthResponse:
+async def get_health_state(req: HealthRequest) -> HealthResponse:
     expected_controllables = redis_client.get_all_models(Namespace.CONTROLLABLE_DEVICES, ControllableDevice)
     expected_interfaces = redis_client.get_all_models(Namespace.INTERFACE_DEVICES, InterfaceDevice)
     expected_total = len(expected_controllables) + len(expected_interfaces)
@@ -20,7 +20,7 @@ async def get_health_state() -> HealthResponse:
     await asyncio.gather(
         discover_lifx(),
         discover_kasa(),
-        discover_esp(passcode="...", port=1234),  # TODO: pass config
+        discover_esp(req.passcode, req.port),
     )
 
     discovered = get_devices_that_checked_in_since_timestamp(start_time)

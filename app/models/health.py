@@ -8,3 +8,7 @@ class HealthState(str, Enum):
 
 class HealthResponse(BaseModel):
     state: HealthState
+
+class HealthRequest(BaseModel):
+    passcode: str
+    port: int

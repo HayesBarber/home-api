@@ -7,7 +7,7 @@ from app.models.device import ControllableDevice, DeviceReadResponse, DeviceDisc
 from app.models.user import CreateUserRequest, DeleteUserRequest, GetUsersResponse
 from app.models.check_in import CheckinRequest, CheckinResponse
 from app.models.weather import WeatherResponse
-from app.models.health import HealthState, HealthResponse
+from app.models.health import HealthState, HealthResponse, HealthRequest
 
 __all__ = [
     "get_room_from_string",
@@ -32,4 +32,5 @@ __all__ = [
     "WeatherResponse",
     "HealthState",
     "HealthResponse",
+    "HealthRequest",
 ]
