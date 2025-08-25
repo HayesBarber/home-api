@@ -17,12 +17,13 @@ from app.utils.logger import LOGGER
 
 
 async def _discover_devices(req: HealthRequest):
+    start_time = LOGGER.get_now()
     await asyncio.gather(
         discover_lifx(),
         discover_kasa(),
         discover_esp(req.passcode, req.port),
     )
-    return get_devices_that_checked_in_since_timestamp(LOGGER.get_now())
+    return get_devices_that_checked_in_since_timestamp(start_time)
 
 
 def _compute_missing_devices(
