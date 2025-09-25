@@ -136,6 +136,7 @@ async def discover_kasa() -> DeviceDiscoveryResponse:
 
 
 async def discover_esp(passcode: str, port: int) -> DeviceDiscoveryResponse:
+    expected = device_service.get_all_esp_devices()
     start_time = LOGGER.get_now()
     await esp_util.discover_esp_devices(passcode, port)
     await asyncio.sleep(2.5)
@@ -144,4 +145,7 @@ async def discover_esp(passcode: str, port: int) -> DeviceDiscoveryResponse:
         esp_only=True,
     )
 
-    devices = response.interface_devices + response.controllable_devices
+    checked_in = response.interface_devices + response.controllable_devices
+
+    if len(checked_in) >= len(expected):
+        return response
