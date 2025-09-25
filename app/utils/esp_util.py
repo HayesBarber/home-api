@@ -36,10 +36,10 @@ async def send_esp_command(
 
             return response_text
     except httpx.RequestError as exc:
-        LOGGER.error(f"An error occurred while requesting {exc.request.url!r}: {exc}")
+        LOGGER.error(f"An error occurred while requesting {exc.request.url!r}: {exc!r}")
         return None
     except httpx.HTTPStatusError as exc:
         LOGGER.error(
-            f"Error response {exc.response.status_code} while requesting {exc.request.url!r}: {exc}"
+            f"Error response {exc.response.status_code} while requesting {exc.request.url!r}: {exc!r}"
         )
         return None
