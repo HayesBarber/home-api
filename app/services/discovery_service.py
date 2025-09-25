@@ -48,6 +48,7 @@ def checkin_device(req: CheckinRequest) -> CheckinResponse | None:
             name=req.name,
             ip=req.ip,
             mac=req.mac,
+            esp_flag=True,
         )
         redis_client.set_model(
             Namespace.INTERFACE_DEVICES, interface_device.name, interface_device
@@ -60,6 +61,7 @@ def checkin_device(req: CheckinRequest) -> CheckinResponse | None:
             type=req.type,
             power_state=req.power_state,
             room=req.room,
+            esp_flag=True,
         )
         redis_client.set_model(
             Namespace.CONTROLLABLE_DEVICES, device_config.name, device_config
