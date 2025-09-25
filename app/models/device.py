@@ -6,11 +6,14 @@ from app.models import DeviceType, PowerState
 from app.config import settings
 from app.utils.logger import LOGGER
 
+
 class InterfaceDevice(BaseModel):
     name: str
     ip: IPv4Address
     mac: str
     last_updated: datetime = Field(default_factory=LOGGER.get_now)
+    esp_flag: bool = False
+
 
 class ControllableDevice(BaseModel):
     name: str
@@ -20,6 +23,7 @@ class ControllableDevice(BaseModel):
     power_state: PowerState
     room: str = settings.default_room
     last_updated: datetime = Field(default_factory=LOGGER.get_now)
+    esp_flag: bool = False
 
     @field_validator("room", mode="before")
     @classmethod
@@ -28,12 +32,15 @@ class ControllableDevice(BaseModel):
             return settings.default_room
         return v
 
+
 class DeviceReadResponse(BaseModel):
     devices: List[ControllableDevice]
+
 
 class DeviceDiscoveryResponse(BaseModel):
     controllable_devices: List[ControllableDevice] = Field(default_factory=list)
     interface_devices: List[InterfaceDevice] = Field(default_factory=list)
+
 
 class EffectedDevicesResponse(BaseModel):
     devices: List[ControllableDevice]
