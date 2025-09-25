@@ -157,7 +157,11 @@ async def discover_esp(passcode: str, port: int) -> DeviceDiscoveryResponse:
         if device.name in checked_in_names:
             continue
 
-        if esp_util.send_esp_command(device, checkin_payload, "check-in"):
+        checkin_response = await esp_util.send_esp_command(
+            device, checkin_payload, "check-in"
+        )
+
+        if checkin_response:
             if isinstance(device, InterfaceDevice):
                 response.interface_devices.append(device)
             elif isinstance(device, ControllableDevice):
