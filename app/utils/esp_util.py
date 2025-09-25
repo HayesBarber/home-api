@@ -1,7 +1,7 @@
 import socket
 import asyncio
 import httpx
-from app.models import ControllableDevice
+from app.models import ControllableDevice, InterfaceDevice
 from app.utils.logger import LOGGER
 
 
@@ -19,7 +19,7 @@ async def discover_esp_devices(passcode: str, port: int):
 
 
 async def send_esp_command(
-    config: ControllableDevice, payload: dict, log_action: str
+    config: ControllableDevice | InterfaceDevice, payload: dict, log_action: str
 ) -> str | None:
     url = f"http://{config.ip}/message"
     try:

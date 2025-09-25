@@ -137,7 +137,9 @@ async def discover_esp(passcode: str, port: int) -> DeviceDiscoveryResponse:
     start_time = LOGGER.get_now()
     await esp_util.discover_esp_devices(passcode, port)
     await asyncio.sleep(2.5)
-    return get_devices_that_checked_in_since_timestamp(
+    response = get_devices_that_checked_in_since_timestamp(
         start_time,
         esp_only=True,
     )
+
+    devices = response.interface_devices + response.controllable_devices
