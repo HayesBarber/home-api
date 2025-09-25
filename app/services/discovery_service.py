@@ -14,7 +14,7 @@ import asyncio
 
 
 def get_devices_that_checked_in_since_timestamp(
-    timestamp: datetime,
+    timestamp: datetime, esp_only: bool = False
 ) -> DeviceDiscoveryResponse:
     controllables = redis_client.get_all_models(
         Namespace.CONTROLLABLE_DEVICES, ControllableDevice
@@ -22,6 +22,8 @@ def get_devices_that_checked_in_since_timestamp(
     controllables_result: list[ControllableDevice] = []
     for device in controllables.values():
         if device.last_updated and device.last_updated > timestamp:
+            if esp_only and not device.esp_flag:
+                continue
             controllables_result.append(device)
 
     interfaces = redis_client.get_all_models(
@@ -30,6 +32,8 @@ def get_devices_that_checked_in_since_timestamp(
     interfaces_result: list[InterfaceDevice] = []
     for device in interfaces.values():
         if device.last_updated and device.last_updated > timestamp:
+            if esp_only and not device.esp_flag:
+                continue
             interfaces_result.append(device)
 
     return DeviceDiscoveryResponse(
