@@ -1,28 +1,16 @@
-import httpx
 from app.models import ControllableDevice, PowerState, PowerAction
-from app.utils.logger import LOGGER
+from app.utils.esp_util import send_esp_command
 
-async def _send_led_command(config: ControllableDevice, payload: dict, log_action: str) -> PowerState:
-    url = f"http://{config.ip}/message"
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(url, json=payload, timeout=5)
-            response.raise_for_status()
-            LOGGER.info(f"Successfully sent {log_action} to LED strip at {config.ip}")
-            
-            response_text = response.text.strip().lower()
-            return PowerState.ON if response_text == "on" else PowerState.OFF
-    except httpx.RequestError as exc:
-        LOGGER.error(f"An error occurred while requesting {exc.request.url!r}: {exc}")
-        return config.power_state
-    except httpx.HTTPStatusError as exc:
-        LOGGER.error(f"Error response {exc.response.status_code} while requesting {exc.request.url!r}: {exc}")
-        return config.power_state
 
-async def control_led_strip(config: ControllableDevice, action: PowerAction) -> PowerState:
+async def control_led_strip(
+    config: ControllableDevice, action: PowerAction
+) -> PowerState:
     payload = {"action": action.value}
-    return await _send_led_command(config, payload, action.value)
+    response_text = await send_esp_command(config, payload, action.value)
+    return PowerState.ON if response_text == "on" else PowerState.OFF
+
 
 async def set_led_theme(config: ControllableDevice, colors: str) -> PowerState:
     payload = {"action": "fill", "colors": colors}
-    return await _send_led_command(config, payload, "fill")
+    response_text = await send_esp_command(config, payload, "fill")
+    return PowerState.ON if response_text == "on" else PowerState.OFF
