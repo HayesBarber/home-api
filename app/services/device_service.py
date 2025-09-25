@@ -18,12 +18,20 @@ def read_all_devices() -> DeviceReadResponse:
 
 
 def get_all_esp_devices() -> list[ControllableDevice | InterfaceDevice]:
-    all_controllable = redis_client.get_all_models(
-        Namespace.CONTROLLABLE_DEVICES, ControllableDevice
+    all_controllable = list(
+        redis_client.get_all_models(
+            Namespace.CONTROLLABLE_DEVICES, ControllableDevice
+        ).values()
     )
-    all_interface = redis_client.get_all_models(
-        Namespace.INTERFACE_DEVICES, InterfaceDevice
+    all_interface = list(
+        redis_client.get_all_models(
+            Namespace.INTERFACE_DEVICES, InterfaceDevice
+        ).values()
     )
+
+    all_devices = all_controllable + all_interface
+
+    return [device for device in all_devices if device.esp_flag]
 
 
 def get_all_rooms() -> set[str]:
