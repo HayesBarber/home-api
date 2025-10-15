@@ -1,4 +1,5 @@
 import asyncio
+import time
 from app.models import (
     PowerAction,
     EffectedDevicesResponse,
@@ -118,14 +119,33 @@ async def _control_device(device: ControllableDevice, action: PowerAction):
             return device.power_state
 
 
+_discovery_locks = {
+    DeviceType.KASA: asyncio.Lock(),
+    DeviceType.LIFX: asyncio.Lock(),
+}
+_last_discovery_time = {DeviceType.KASA: 0, DeviceType.LIFX: 0}
+DISCOVERY_COOLDOWN = 30
+
+
 async def _rediscover_devices(device_type: DeviceType):
-    match device_type:
-        case DeviceType.KASA:
-            await discovery_service.discover_kasa()
-        case DeviceType.LIFX:
-            await discovery_service.discover_lifx()
-        case _:
+    async with _discovery_locks[device_type]:
+        now = time.time()
+        if now - _last_discovery_time[device_type] < DISCOVERY_COOLDOWN:
+            LOGGER.info(
+                f"Skipping rediscovery for {device_type.name} (cooldown active)"
+            )
             return
+
+        LOGGER.info(f"Performing rediscovery for {device_type.name}")
+        _last_discovery_time[device_type] = now
+
+        match device_type:
+            case DeviceType.KASA:
+                await discovery_service.discover_kasa()
+            case DeviceType.LIFX:
+                await discovery_service.discover_lifx()
+            case _:
+                return
 
 
 def _get_power_state_of_devices(devices: List[ControllableDevice]) -> PowerState:
