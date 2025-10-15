@@ -1,10 +1,18 @@
 import asyncio
-from app.models import PowerAction, EffectedDevicesResponse, DeviceType, ControllableDevice, PowerState, get_room_from_string
+from app.models import (
+    PowerAction,
+    EffectedDevicesResponse,
+    DeviceType,
+    ControllableDevice,
+    PowerState,
+    get_room_from_string,
+)
 from app.utils import kasa_util, lifx_util, led_strip_util
 from app.utils.redis_client import redis_client, Namespace
 from app.utils.logger import LOGGER
 from app.services import device_service
 from typing import List, Optional
+
 
 async def set_state(name: str, action: PowerAction) -> EffectedDevicesResponse:
     if name.lower() == "home":
@@ -13,57 +21,77 @@ async def set_state(name: str, action: PowerAction) -> EffectedDevicesResponse:
     room = get_room_from_string(name)
     if room:
         return await set_room_state(room, action)
-    
+
     return await set_device_state(name, action)
 
 
-def get_power_state_of_room(room: str, devices: Optional[List[ControllableDevice]] = None) -> PowerState:
+def get_power_state_of_room(
+    room: str, devices: Optional[List[ControllableDevice]] = None
+) -> PowerState:
     if devices is None:
         devices = device_service.get_devices_of_room(room)
 
     return _get_power_state_of_devices(devices)
 
-def get_power_state_of_home(devices: Optional[List[ControllableDevice]] = None) -> PowerState:
+
+def get_power_state_of_home(
+    devices: Optional[List[ControllableDevice]] = None,
+) -> PowerState:
     if devices is None:
         devices = device_service.read_all_devices().devices
-    
+
     return _get_power_state_of_devices(devices)
+
 
 async def set_device_state(name: str, action: PowerAction):
     device = device_service.get_device_config(name)
 
     return await _perform_power_action([device], action)
 
+
 async def set_room_state(room: str, action: PowerAction):
     devices = device_service.get_devices_of_room(room)
 
     if action == PowerAction.TOGGLE:
-        action = PowerAction.ON if get_power_state_of_room(room, devices) == PowerState.OFF else PowerAction.OFF
+        action = (
+            PowerAction.ON
+            if get_power_state_of_room(room, devices) == PowerState.OFF
+            else PowerAction.OFF
+        )
 
     return await _perform_power_action(devices, action)
+
 
 async def set_home_state(action: PowerAction):
     devices = device_service.read_all_devices().devices
 
     if action == PowerAction.TOGGLE:
-        action = PowerAction.ON if get_power_state_of_home(devices) == PowerState.OFF else PowerAction.OFF
+        action = (
+            PowerAction.ON
+            if get_power_state_of_home(devices) == PowerState.OFF
+            else PowerAction.OFF
+        )
 
     return await _perform_power_action(devices, action)
 
-async def _perform_power_action(devices: List[ControllableDevice], action: PowerAction) -> EffectedDevicesResponse:
-    new_states = await asyncio.gather(*[
-        _get_new_device_state(device, action) for device in devices
-    ])
+
+async def _perform_power_action(
+    devices: List[ControllableDevice], action: PowerAction
+) -> EffectedDevicesResponse:
+    new_states = await asyncio.gather(
+        *[_get_new_device_state(device, action) for device in devices]
+    )
 
     for device, new_state in zip(devices, new_states):
         device.power_state = new_state
 
     redis_client.set_all_models(Namespace.CONTROLLABLE_DEVICES, devices, "name")
-    return EffectedDevicesResponse(
-        devices=devices
-    )
+    return EffectedDevicesResponse(devices=devices)
 
-async def _get_new_device_state(device: ControllableDevice, action: PowerAction) -> PowerState:
+
+async def _get_new_device_state(
+    device: ControllableDevice, action: PowerAction
+) -> PowerState:
     try:
         match device.type:
             case DeviceType.KASA:
@@ -78,9 +106,10 @@ async def _get_new_device_state(device: ControllableDevice, action: PowerAction)
         LOGGER.error(f"Error setting state for device '{device.name}': {e}")
         return device.power_state
 
+
 def _get_power_state_of_devices(devices: List[ControllableDevice]) -> PowerState:
     for device in devices:
         if device.power_state == PowerState.ON:
             return PowerState.ON
-    
+
     return PowerState.OFF
