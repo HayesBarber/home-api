@@ -1,10 +1,19 @@
 import asyncio
-from app.models import PowerAction, EffectedDevicesResponse, DeviceType, ControllableDevice, PowerState, get_room_from_string
+import time
+from app.models import (
+    PowerAction,
+    EffectedDevicesResponse,
+    DeviceType,
+    ControllableDevice,
+    PowerState,
+    get_room_from_string,
+)
 from app.utils import kasa_util, lifx_util, led_strip_util
 from app.utils.redis_client import redis_client, Namespace
 from app.utils.logger import LOGGER
-from app.services import device_service
+from app.services import device_service, discovery_service
 from typing import List, Optional
+
 
 async def set_state(name: str, action: PowerAction) -> EffectedDevicesResponse:
     if name.lower() == "home":
@@ -13,74 +22,135 @@ async def set_state(name: str, action: PowerAction) -> EffectedDevicesResponse:
     room = get_room_from_string(name)
     if room:
         return await set_room_state(room, action)
-    
+
     return await set_device_state(name, action)
 
 
-def get_power_state_of_room(room: str, devices: Optional[List[ControllableDevice]] = None) -> PowerState:
+def get_power_state_of_room(
+    room: str, devices: Optional[List[ControllableDevice]] = None
+) -> PowerState:
     if devices is None:
         devices = device_service.get_devices_of_room(room)
 
     return _get_power_state_of_devices(devices)
 
-def get_power_state_of_home(devices: Optional[List[ControllableDevice]] = None) -> PowerState:
+
+def get_power_state_of_home(
+    devices: Optional[List[ControllableDevice]] = None,
+) -> PowerState:
     if devices is None:
         devices = device_service.read_all_devices().devices
-    
+
     return _get_power_state_of_devices(devices)
+
 
 async def set_device_state(name: str, action: PowerAction):
     device = device_service.get_device_config(name)
 
     return await _perform_power_action([device], action)
 
+
 async def set_room_state(room: str, action: PowerAction):
     devices = device_service.get_devices_of_room(room)
 
     if action == PowerAction.TOGGLE:
-        action = PowerAction.ON if get_power_state_of_room(room, devices) == PowerState.OFF else PowerAction.OFF
+        action = (
+            PowerAction.ON
+            if get_power_state_of_room(room, devices) == PowerState.OFF
+            else PowerAction.OFF
+        )
 
     return await _perform_power_action(devices, action)
+
 
 async def set_home_state(action: PowerAction):
     devices = device_service.read_all_devices().devices
 
     if action == PowerAction.TOGGLE:
-        action = PowerAction.ON if get_power_state_of_home(devices) == PowerState.OFF else PowerAction.OFF
+        action = (
+            PowerAction.ON
+            if get_power_state_of_home(devices) == PowerState.OFF
+            else PowerAction.OFF
+        )
 
     return await _perform_power_action(devices, action)
 
-async def _perform_power_action(devices: List[ControllableDevice], action: PowerAction) -> EffectedDevicesResponse:
-    new_states = await asyncio.gather(*[
-        _get_new_device_state(device, action) for device in devices
-    ])
+
+async def _perform_power_action(
+    devices: List[ControllableDevice], action: PowerAction
+) -> EffectedDevicesResponse:
+    new_states = await asyncio.gather(
+        *[_get_new_device_state(device, action) for device in devices]
+    )
 
     for device, new_state in zip(devices, new_states):
         device.power_state = new_state
 
     redis_client.set_all_models(Namespace.CONTROLLABLE_DEVICES, devices, "name")
-    return EffectedDevicesResponse(
-        devices=devices
-    )
+    return EffectedDevicesResponse(devices=devices)
 
-async def _get_new_device_state(device: ControllableDevice, action: PowerAction) -> PowerState:
+
+async def _get_new_device_state(
+    device: ControllableDevice, action: PowerAction
+) -> PowerState:
     try:
-        match device.type:
-            case DeviceType.KASA:
-                return await kasa_util.control_kasa_device(device, action)
-            case DeviceType.LIFX:
-                return await lifx_util.control_lifx_device(device, action)
-            case DeviceType.LED_STRIP:
-                return await led_strip_util.control_led_strip(device, action)
-            case _:
-                return device.power_state
+        return await _control_device(device, action)
     except Exception as e:
-        LOGGER.error(f"Error setting state for device '{device.name}': {e}")
-        return device.power_state
+        LOGGER.warn(
+            f"Initial control failed for {device.name}: {e}. Trying rediscovery..."
+        )
+        await _rediscover_devices(device.type)
+        try:
+            return await _control_device(device, action)
+        except Exception as e2:
+            LOGGER.error(f"Retry failed for {device.name}: {e2}")
+            return device.power_state
+
+
+async def _control_device(device: ControllableDevice, action: PowerAction):
+    match device.type:
+        case DeviceType.KASA:
+            return await kasa_util.control_kasa_device(device, action)
+        case DeviceType.LIFX:
+            return await lifx_util.control_lifx_device(device, action)
+        case DeviceType.LED_STRIP:
+            return await led_strip_util.control_led_strip(device, action)
+        case _:
+            return device.power_state
+
+
+_discovery_locks = {
+    DeviceType.KASA: asyncio.Lock(),
+    DeviceType.LIFX: asyncio.Lock(),
+}
+_last_discovery_time = {DeviceType.KASA: 0, DeviceType.LIFX: 0}
+DISCOVERY_COOLDOWN = 30
+
+
+async def _rediscover_devices(device_type: DeviceType):
+    async with _discovery_locks[device_type]:
+        now = time.time()
+        if now - _last_discovery_time[device_type] < DISCOVERY_COOLDOWN:
+            LOGGER.info(
+                f"Skipping rediscovery for {device_type.name} (cooldown active)"
+            )
+            return
+
+        LOGGER.info(f"Performing rediscovery for {device_type.name}")
+        _last_discovery_time[device_type] = now
+
+        match device_type:
+            case DeviceType.KASA:
+                await discovery_service.discover_kasa()
+            case DeviceType.LIFX:
+                await discovery_service.discover_lifx()
+            case _:
+                return
+
 
 def _get_power_state_of_devices(devices: List[ControllableDevice]) -> PowerState:
     for device in devices:
         if device.power_state == PowerState.ON:
             return PowerState.ON
-    
+
     return PowerState.OFF
