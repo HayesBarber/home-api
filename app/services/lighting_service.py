@@ -10,7 +10,7 @@ from app.models import (
 from app.utils import kasa_util, lifx_util, led_strip_util
 from app.utils.redis_client import redis_client, Namespace
 from app.utils.logger import LOGGER
-from app.services import device_service
+from app.services import device_service, discovery_service
 from typing import List, Optional
 
 
@@ -93,18 +93,39 @@ async def _get_new_device_state(
     device: ControllableDevice, action: PowerAction
 ) -> PowerState:
     try:
-        match device.type:
-            case DeviceType.KASA:
-                return await kasa_util.control_kasa_device(device, action)
-            case DeviceType.LIFX:
-                return await lifx_util.control_lifx_device(device, action)
-            case DeviceType.LED_STRIP:
-                return await led_strip_util.control_led_strip(device, action)
-            case _:
-                return device.power_state
+        return await _control_device(device, action)
     except Exception as e:
-        LOGGER.error(f"Error setting state for device '{device.name}': {e}")
-        return device.power_state
+        LOGGER.warn(
+            f"Initial control failed for {device.name}: {e}. Trying rediscovery..."
+        )
+        await _rediscover_devices(device.type)
+        try:
+            return await _control_device(device, action)
+        except Exception as e2:
+            LOGGER.error(f"Retry failed for {device.name}: {e2}")
+            return device.power_state
+
+
+async def _control_device(device: ControllableDevice, action: PowerAction):
+    match device.type:
+        case DeviceType.KASA:
+            return await kasa_util.control_kasa_device(device, action)
+        case DeviceType.LIFX:
+            return await lifx_util.control_lifx_device(device, action)
+        case DeviceType.LED_STRIP:
+            return await led_strip_util.control_led_strip(device, action)
+        case _:
+            return device.power_state
+
+
+async def _rediscover_devices(device_type: DeviceType):
+    match device_type:
+        case DeviceType.KASA:
+            await discovery_service.discover_kasa()
+        case DeviceType.LIFX:
+            await discovery_service.discover_lifx()
+        case _:
+            return
 
 
 def _get_power_state_of_devices(devices: List[ControllableDevice]) -> PowerState:
