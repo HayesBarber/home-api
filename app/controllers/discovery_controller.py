@@ -1,8 +1,14 @@
 from fastapi import APIRouter, Response, status
 from app.services import discovery_service
-from app.models import DeviceDiscoveryResponse, CheckinRequest, CheckinResponse
+from app.models import (
+    DeviceDiscoveryResponse,
+    CheckinRequest,
+    CheckinResponse,
+    DiscoverEspRequest,
+)
 
 router = APIRouter(prefix="/discovery", tags=["Discovery"])
+
 
 @router.post(
     "/check-in",
@@ -17,14 +23,19 @@ def check_in_device(req: CheckinRequest):
         return response
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
+
 @router.post("/discover/kasa", response_model=DeviceDiscoveryResponse)
 async def discover_kasa():
     return await discovery_service.discover_kasa()
+
 
 @router.post("/discover/lifx", response_model=DeviceDiscoveryResponse)
 async def discover_lifx():
     return await discovery_service.discover_lifx()
 
+
 @router.post("/discover/esp", response_model=DeviceDiscoveryResponse)
-async def discover_esp(passcode: str, port: int):
+async def discover_esp(req: DiscoverEspRequest):
+    passcode = req.passcode
+    port = req.port
     return await discovery_service.discover_esp(passcode, port)
