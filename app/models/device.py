@@ -1,7 +1,6 @@
 from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 from ipaddress import IPv4Address
-from typing import List
 from app.models import DeviceType, PowerState
 from app.config import settings
 from app.utils.logger import LOGGER
@@ -34,13 +33,17 @@ class ControllableDevice(BaseModel):
 
 
 class DeviceReadResponse(BaseModel):
-    devices: List[ControllableDevice]
+    devices: list[ControllableDevice]
+
+
+class InterfaceDeviceReadResponse(BaseModel):
+    devices: list[InterfaceDevice]
 
 
 class DeviceDiscoveryResponse(BaseModel):
-    controllable_devices: List[ControllableDevice] = Field(default_factory=list)
-    interface_devices: List[InterfaceDevice] = Field(default_factory=list)
+    controllable_devices: list[ControllableDevice] = Field(default_factory=list)
+    interface_devices: list[InterfaceDevice] = Field(default_factory=list)
 
 
 class EffectedDevicesResponse(BaseModel):
-    devices: List[ControllableDevice]
+    devices: list[ControllableDevice]

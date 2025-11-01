@@ -1,17 +1,31 @@
 from fastapi import APIRouter, Response, status
 from app.services import device_service
-from app.models import DeviceReadResponse
+from app.models import DeviceReadResponse, InterfaceDeviceReadResponse
 
 router = APIRouter(prefix="/device", tags=["Device"])
+
 
 @router.get("/read", response_model=DeviceReadResponse)
 def read_all_devices():
     return device_service.read_all_devices()
 
+
+@router.get("/read/interface", response_model=InterfaceDeviceReadResponse)
+def read_all_interface_devices():
+    return device_service.read_all_interface_devices()
+
+
 @router.delete("/{device_name}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_device(device_name: str):
     device_service.delete_devcie(device_name)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.delete("/interface/{device_name}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_interface_device(device_name: str):
+    device_service.delete_interface_device(device_name)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
 
 @router.patch("/update-name", status_code=status.HTTP_204_NO_CONTENT)
 async def update_device_name(old_name: str, new_name: str):

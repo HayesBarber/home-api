@@ -5,6 +5,7 @@ from app.models import (
     DeviceType,
     DeviceReadResponse,
     InterfaceDevice,
+    InterfaceDeviceReadResponse,
 )
 from app.config import settings
 
@@ -15,6 +16,15 @@ def read_all_devices() -> DeviceReadResponse:
     )
     devices = list(all_configs_dict.values())
     return DeviceReadResponse(devices=devices)
+
+
+def read_all_interface_devices() -> InterfaceDeviceReadResponse:
+    interface_devices_dict = redis_client.get_all_models(
+        Namespace.INTERFACE_DEVICES,
+        InterfaceDevice,
+    )
+    devices = list(interface_devices_dict.values())
+    return InterfaceDeviceReadResponse(devices=devices)
 
 
 def get_all_esp_devices() -> list[ControllableDevice | InterfaceDevice]:
@@ -45,6 +55,10 @@ def get_all_rooms() -> set[str]:
 
 def delete_devcie(name: str):
     redis_client.delete(Namespace.CONTROLLABLE_DEVICES, name)
+
+
+def delete_interface_devcie(name: str):
+    redis_client.delete(Namespace.INTERFACE_DEVICES, name)
 
 
 def get_device_config(name: str) -> ControllableDevice:
