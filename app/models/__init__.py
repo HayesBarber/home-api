@@ -15,6 +15,7 @@ from app.models.device import (
     DeviceDiscoveryResponse,
     EffectedDevicesResponse,
     InterfaceDevice,
+    InterfaceDeviceReadResponse,
 )
 from app.models.user import CreateUserRequest, DeleteUserRequest, GetUsersResponse
 from app.models.check_in import CheckinRequest, CheckinResponse
@@ -47,4 +48,5 @@ __all__ = [
     "HealthResponse",
     "HealthRequest",
     "DiscoverEspRequest",
+    "InterfaceDeviceReadResponse",
 ]
