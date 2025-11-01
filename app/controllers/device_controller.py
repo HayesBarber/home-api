@@ -21,6 +21,12 @@ def delete_device(device_name: str):
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
+@router.delete("/interface/{device_name}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_interface_device(device_name: str):
+    device_service.delete_interface_device(device_name)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
 @router.patch("/update-name", status_code=status.HTTP_204_NO_CONTENT)
 async def update_device_name(old_name: str, new_name: str):
     await device_service.update_device_name(old_name, new_name)
