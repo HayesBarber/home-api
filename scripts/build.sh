@@ -20,11 +20,16 @@ docker save -o $TAR_PATH $IMAGE_NAME
 echo "Copying image to remote machine..."
 scp $TAR_PATH ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_DIR}
 
+ENV_FILE_ARG=""
+if [[ -n "${ENV_FILE:-}" ]]; then
+  ENV_FILE_ARG="--env-file ${ENV_FILE}"
+fi
+
 echo "Loading image on remote machine and restarting container..."
 ssh ${REMOTE_USER}@${REMOTE_HOST} << EOF
   docker load -i ${REMOTE_DIR}/${IMAGE_NAME}.tar
   docker stop $IMAGE_NAME || true
   docker rm $IMAGE_NAME || true
-  docker run -d --network host --restart always --name $IMAGE_NAME $IMAGE_NAME
+  docker run -d --network host --restart always --name $IMAGE_NAME $ENV_FILE_ARG $IMAGE_NAME
   docker image prune -f
 EOF
