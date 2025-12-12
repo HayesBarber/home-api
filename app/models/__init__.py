@@ -22,7 +22,7 @@ from app.models.check_in import CheckinRequest, CheckinResponse
 from app.models.weather import WeatherResponse
 from app.models.health import HealthState, HealthResponse, HealthRequest
 from app.models.discovery import DiscoverEspRequest
-from app.models.upstream import UpstreamMapping
+from app.models.upstream import UpstreamMapping, GetAllRoutesResponse
 
 __all__ = [
     "get_room_from_string",
@@ -51,4 +51,5 @@ __all__ = [
     "DiscoverEspRequest",
     "InterfaceDeviceReadResponse",
     "UpstreamMapping",
+    "GetAllRoutesResponse",
 ]

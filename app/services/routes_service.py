@@ -1,4 +1,4 @@
-from app.models import UpstreamMapping
+from app.models import UpstreamMapping, GetAllRoutesResponse
 from app.utils.redis_client import redis_client, Namespace
 
 
@@ -10,6 +10,13 @@ def delete_route(req: UpstreamMapping):
     redis_client.delete(Namespace.UPSTREAMS, req.prefix)
 
 
-def get_all_routes():
+def get_all_routes() -> GetAllRoutesResponse:
     upstreams = redis_client.get_all_models(Namespace.UPSTREAMS, UpstreamMapping)
-    return upstreams
+    routes = []
+
+    for upstream in upstreams.values():
+        routes.append(upstream)
+
+    return GetAllRoutesResponse(
+        routes=routes,
+    )
