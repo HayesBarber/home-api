@@ -6,6 +6,7 @@ from app.controllers.themes_controller import router as themes_controller
 from app.controllers.user_controller import router as users_controller
 from app.controllers.weather_controller import router as weather_controller
 from app.controllers.health_controller import router as health_controller
+from app.controllers.routes_controller import router as routes_controller
 
 api_router = APIRouter()
 api_router.include_router(discovery_controller)
@@ -15,3 +16,4 @@ api_router.include_router(themes_controller)
 api_router.include_router(users_controller)
 api_router.include_router(weather_controller)
 api_router.include_router(health_controller)
+api_router.include_router(routes_controller)

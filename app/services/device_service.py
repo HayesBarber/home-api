@@ -57,7 +57,7 @@ def delete_devcie(name: str):
     redis_client.delete(Namespace.CONTROLLABLE_DEVICES, name)
 
 
-def delete_interface_devcie(name: str):
+def delete_interface_device(name: str):
     redis_client.delete(Namespace.INTERFACE_DEVICES, name)
 
 
